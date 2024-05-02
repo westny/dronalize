@@ -1,0 +1,37 @@
+name: Conda CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: dronalize
+          environment-file: container/environment.yml
+          python-version: 3.11
+          auto-activate-base: false
+      
+      - name: Download Data
+        run: |
+          wget -O synthD.zip "https://liuonline-my.sharepoint.com/:u:/g/personal/thewe60_liu_se/EfK1PKrQ3X9LgOd_8TSw1g0BINzDadmTxHF_RHKg_31dGw?e=SEKX9X&download=1"
+          unzip synthD.zip -d ./data
+          
+      - name: Run PyTorch Training Loop
+        run: |
+          python train.py --config ci
+
+      - name: Run Unit Tests
+        run: |
+          python -m pip install pytest
+          pytest

@@ -1,0 +1,27 @@
+name: dronalize
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+  - pyg
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch=2.2
+  - torchvision
+  - pytorch-cuda=12.1
+  - lightning
+  - wandb
+  - scikit-learn
+  - tqdm
+  - seaborn
+  - matplotlib
+  - pandas
+  - utm
+  - pyarrow
+  - pyg
+  - pytorch-cluster
+  - pytorch-scatter
+  - pip:
+      - osmium
+      - networkx

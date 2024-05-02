@@ -1,0 +1,29 @@
+{
+  "experiment_name": "Example setup",
+  "task": "motion forecasting",
+  "dataset": "synthD",
+  "model": {
+    "class": "Net",
+    "module": "models.prototype",
+    "num_inputs": 5,
+    "num_hidden": 32,
+    "num_outputs": 2,
+    "pred_hrz": 25
+  },
+  "litmodule": {
+    "class": "LitModel",
+    "module": "base"
+  },
+  "datamodule": {
+    "class": "DroneDataModule",
+    "module": "datamodules.dataloader",
+    "batch_size": 16,
+    "root": "data/",
+    "name": "synthD"
+  },
+  "training": {
+    "dataset": "synthD",
+    "epochs": 100,
+    "lr": 5e-4
+  }
+}

@@ -1,0 +1,59 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%files
+    environment.yml /opt/environment.yml
+
+%environment
+export PATH="/opt/mambaforge/bin:$PATH"
+export PYTHONNOUSERSITE=1
+
+%post
+
+# Install necessary system packages
+apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    nano \
+    wget \
+    curl \
+    ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Mambaforge
+cd /tmp
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge-$(uname)-$(uname -m).sh -fp /opt/mambaforge -b
+rm Mambaforge*sh
+
+export PATH=/opt/mambaforge/bin:$PATH
+
+# Activate mamba and create the environment
+. /opt/mambaforge/etc/profile.d/conda.sh
+mamba env create -f /opt/environment.yml
+
+# Clean up conda packages to reduce the container size
+mamba clean -a --yes
+
+%runscript
+. /opt/mambaforge/etc/profile.d/conda.sh
+conda activate dronalize
+exec "$@"
+
+%help
+This is a container for the Dronalize project. It contains all the necessary dependencies to run the project.
+To run the project, you can use the following command:
+```
+apptainer run dronalize.sif <command> <args>
+```
+where `<command>` is the command you want to run and `<args>` are the arguments for the command.
+
+For example, to run the train script, you can use the following command:
+```
+apptainer run dronalize.sif python train.py
+```
+
+To enable GPU support, you can use the following command:
+```
+apptainer run --nv dronalize.sif python train.py
+```

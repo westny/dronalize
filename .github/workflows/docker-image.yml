@@ -1,0 +1,31 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      IMAGE_TAG: ${{ github.run_id }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: |
+        cd container
+        docker build -f Dockerfile . -t dronalize:${IMAGE_TAG}
+
+    - name: Download Data
+      run: |
+        wget -O synthD.zip "https://liuonline-my.sharepoint.com/:u:/g/personal/thewe60_liu_se/EfK1PKrQ3X9LgOd_8TSw1g0BINzDadmTxHF_RHKg_31dGw?e=SEKX9X&download=1"
+        unzip synthD.zip -d ./data
+
+    - name: Run PyTorch Training Loop
+      run: |
+        docker run -v "$(pwd)":/app -w /app dronalize:${IMAGE_TAG} python train.py --config ci
+
+    
