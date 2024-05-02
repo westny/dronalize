@@ -1,7 +1,6 @@
 
 <div align="center">
-<img alt="Dronalize" src="" width="800px" style="max-width: 100%;">
-
+<img alt="Dronalize logo" src=https://github.com/westny/dronalize/assets/60364134/862a8a60-4cd0-4b21-b0d2-a4ee0e5b4f03 width="800px" style="max-width: 100%;">
 
 ______________________________________________________________________
 
@@ -20,7 +19,7 @@ ______________________________________________________________________
 
 **Dronalize** is a toolbox designed to alleviate the development efforts of researchers working with the **D**rone datasets from [leveLXData](https://levelxdata.com/) on behavior prediction problems.
 It includes tools for data preprocessing, visualization, and evaluation, as well as a model development pipeline for data-driven motion forecasting.
-<br> The toolbox relies heavily on [<img alt="Pytorch logo" src="" height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src="" height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/), and [<img alt="Lightning logo" src="">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) for its functionality.
+<br> The toolbox relies heavily on [<img alt="Pytorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src=https://github.com/westny/dronalize/assets/60364134/53554175-0ca1-4020-b8eb-7bbd4ebe0e47 height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/), and [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) for its functionality.
 
 ***
 
@@ -44,7 +43,7 @@ We have provided both an Apptainer and a Dockerfile for this purpose.
 Both recipes use the `mamba` package manager for creating the environments. 
 In both cases, they utilize an `environment.yml` file that could be used to create a local conda environment if desired.
 
-### <img alt="Apptainer logo" src="" width="110">
+### <img alt="Apptainer logo" src=https://github.com/westny/dronalize/assets/60364134/6a9e51ae-c6ce-4ad1-b79f-05ca7d959062 width="110">
 [Apptainer](https://apptainer.org/docs/user/main/index.html) is a lightweight containerization tool that we prefer for its simplicity and ease of use.
 Once installed, you can build the container by running the following command:
 
@@ -66,7 +65,7 @@ If you have CUDA installed and want to use GPU acceleration, you can add the `--
 apptainer run --nv /path/to/dronalize.sif python train.py
 ```
 
-### <img alt="Docker logo" src="" width="100">
+### <img alt="Docker logo" src=https://github.com/westny/dronalize/assets/60364134/1bf2df76-ab44-4bae-9623-03710eff0572 width="100">
 If you prefer to use [Docker](https://www.docker.com/get-started/), you can build the container by running the following command from the container root directory:
 
 ```bash 
@@ -93,7 +92,7 @@ To use GPU acceleration, you need to install the [NVIDIA Container Toolkit](http
 docker run --gpus all -v "$(pwd)":/app -w /app dronalize python train.py
 ```
 
-### <img alt="Conda logo" src="" width="100">
+### <img alt="Conda logo" src=https://github.com/westny/dronalize/assets/60364134/52d02aa9-6231-4261-8e0f-6c092991c89c width="100">
 If you prefer to not use containers, you can create a [conda](https://conda.io/projects/conda/en/latest/index.html) environment using the `environment.yml` file.
 To create the environment, run the following command:
 
@@ -119,7 +118,7 @@ The environment is now ready to use, and you can run the scripts in the reposito
 
 # Usage
 The **Dronalize** toolbox is designed for two main purposes: data preprocessing and evaluation of trajectory prediction models.
-It was developed with the intention of being used in conjunction with [<img alt="PyTorch logo" src="" height="12">PyTorch](https://pytorch.org/docs/stable/index.html); in particular, the [<img alt="Lightning logo" src="" height="16"">Lightning](https://lightning.ai/docs/pytorch/stable/) framework.
+It was developed to be used in conjunction with [<img alt="PyTorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html); in particular, the [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/)  framework.
 
 ### Preprocessing
 
@@ -329,7 +328,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > - Road users classes: car, trucks
 
 <div align="center">
-  <img src="" alt="highD.gif">
+  <img src=https://github.com/westny/dronalize/assets/60364134/0e9de880-9ee3-4941-ab41-692f259a0cbc alt="highD.gif">
 </div>
 
 ***
@@ -371,7 +370,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > - Road users classes: car, van, trailer, truck, bus, pedestrians, bicyclists, motorcyclists
 
 <div align="center">
-  <img src="" alt="rounD.gif">
+  <img src=https://github.com/westny/dronalize/assets/60364134/89b37a52-9b78-42a6-9386-0b2d5b5caf33 alt="rounD.gif">
 </div>
 
 ***
@@ -428,7 +427,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > - Road users classes: car, truck/bus, pedestrians, bicyclists
 
 <div align="center">
-  <img src="" alt="inD.gif">
+  <img src=https://github.com/westny/dronalize/assets/60364134/98c48e3a-8ac8-4896-863c-c26e08d6764b alt="inD.gif">
 </div>
 
 
