@@ -140,7 +140,7 @@ while for the `highD` dataset, you should run:
 python -m preprocessing.preprocess_highway.py --dataset 'highD' --path 'path/to/datasets'
 ```
 
-By default, these script will save the preprocessed data in the `data` directory, this can be changed by specifying the `--output-dir` argument.
+By default, these scripts will save the preprocessed data in the `data` directory, this can be changed by specifying the `--output-dir` argument.
 There is an option to use threading for faster processing by setting the `--use-threads` flag that we recommend for efficient processing.
 
 There are additional **default** arguments in the respective configuration files within the `preprocessing/config` directory that should not be changed to facilitate consistency across different studies.
@@ -156,7 +156,7 @@ Using Apptainer, the shell script can be executed as follows:
 ``` 
 
 > Depending on the dataset and the number of workers, preprocessing can some time.
-> In our experience, preprocessing all datasets takes around 8 hours on a standard workstation with 8 cores and 32 GB of RAM.
+> In our experience, preprocessing all datasets takes around 5 hours on a standard workstation with 8 cores and 32 GB of RAM.
 
 
 ### Data Loading
@@ -233,7 +233,7 @@ An example of how to train the model is shown below:
   [apptainer run --nv path/to/dronalize.sif] python train.py --add-name test --dry-run 0 --use-cuda 1 --n-workers 4
 ```
 
-We recommend users to modify the default arguments in [arguments.py](arguments.py) to suit their needs.
+We recommend users modify the default arguments in [arguments.py](arguments.py) to suit their needs.
 
 > Note that the default logger is set to `wandb` ([weights & biases](https://wandb.ai/)) for logging performance metrics during training.
 > It is our preferred tool for tracking experiments, but it can be easily replaced with other logging tools by modifying the `Trainer` in the training script.
@@ -275,11 +275,11 @@ They are freely available for non-commercial use, which is our targeted audience
 - *[inD](https://levelxdata.com/ind-dataset/)*
 
 > Several datasets in the leveLXData suite were recently updated (April 2024) that include improvements to the maps, as well as the addition of some new locations.
-> This toolbox is designed to work with the updated datasets, and we recommend using the latest versions for the latest features and to avoid having to modify the toolbox.
+> This toolbox is designed to work with the updated datasets, and we recommend using the latest versions for the most recent features to avoid having to modify the toolbox.
 > 
-> We found that the toolbox works with the *[uniD](https://levelxdata.com/unid-dataset/)* dataset with minor adjustments, but we have yet evaluated it in detail.
+> We found that the toolbox works with the *[uniD](https://levelxdata.com/unid-dataset/)* dataset with minor adjustments, but we have yet to evaluate it in detail.
 >
-> We are working on adding support for the *[exiD](https://levelxdata.com/exid-dataset/)* dataset, that we aim to include in future versions of the toolbox.
+> We are working on adding support for the *[exiD](https://levelxdata.com/exid-dataset/)* dataset that we aim to include in future versions of the toolbox.
 
 ***
 
@@ -325,7 +325,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on six different recording locations
 > - In total 110 500 vehicles
-> - Road users classes: car, trucks
+> - Road user classes: car, trucks
 
 <div align="center">
   <img src=https://github.com/westny/dronalize/assets/60364134/0e9de880-9ee3-4941-ab41-692f259a0cbc alt="highD.gif">
@@ -367,7 +367,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on three different recording locations
 > - In total ~ 13 740 road users
-> - Road users classes: car, van, trailer, truck, bus, pedestrians, bicyclists, motorcyclists
+> - Road user classes: car, van, trailer, truck, bus, pedestrians, bicyclists, motorcyclists
 
 <div align="center">
   <img src=https://github.com/westny/dronalize/assets/60364134/89b37a52-9b78-42a6-9386-0b2d5b5caf33 alt="rounD.gif">
@@ -424,7 +424,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on four different recording locations
 > - In total ~ 8200 vehicles and ~ 5300 vulnerable road users (VRUs)
-> - Road users classes: car, truck/bus, pedestrians, bicyclists
+> - Road user classes: car, truck/bus, pedestrians, bicyclists
 
 <div align="center">
   <img src=https://github.com/westny/dronalize/assets/60364134/98c48e3a-8ac8-4896-863c-c26e08d6764b alt="inD.gif">
