@@ -48,9 +48,9 @@ parser.add_argument('--pin-memory', type=str_to_bool, default=True,
 parser.add_argument('--persistent-workers', type=str_to_bool, default=True,
                     const=True, nargs="?",
                     help='if persistent workers should be used (default: True)')
-parser.add_argument('--store-model', type=str_to_bool, default=False,
+parser.add_argument('--store-model', type=str_to_bool, default=True,
                     const=True, nargs="?",
-                    help='if checkpoints should be stored (default: False)')
+                    help='if checkpoints should be stored (default: True)')
 parser.add_argument('--store-samples', type=str_to_bool, default=False,
                     const=True, nargs="?",
                     help='if samples should be stored (default: False)')

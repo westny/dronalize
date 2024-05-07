@@ -52,7 +52,7 @@ def main(save_name: str) -> None:
 
     # Setup callbacks list for training
     callback_list: list[Callback] = []
-    if args.store_model:
+    if args.store_model and not args.dry_run:
         ckpt_cb = ModelCheckpoint(
             dirpath=str(ckpt_path.parent),  # Using parent directory of the checkpoint
             filename=save_name + "_{epoch:02d}",
