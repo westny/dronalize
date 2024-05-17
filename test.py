@@ -12,17 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import os
-import time
-import pathlib
 import warnings
 import torch
 
 from torch.multiprocessing import set_sharing_strategy
 from lightning.pytorch import Trainer, seed_everything
-from lightning.pytorch.callbacks import Callback, ModelCheckpoint
-from lightning.pytorch.loggers import Logger, WandbLogger
-from lightning.pytorch.strategies import Strategy, DDPStrategy
+from lightning.pytorch.loggers import Logger, CSVLogger
 
 from arguments import args
 from preamble import load_config, import_from_module
@@ -42,40 +39,21 @@ LitModel = import_from_module(config["litmodule"]["module"], config["litmodule"]
 
 def main(save_name: str) -> None:
     ds = config["dataset"]
-    ckpt_path = pathlib.Path(os.path.join("saved_models", ds, f"{save_name}.ckpt"))
+    path = os.path.join("saved_models", ds, save_name)
 
-    # Check if checkpoint exists and the overwrite flag is not set
-    if ckpt_path.exists() and not args.overwrite:
-        ckpt = str(ckpt_path)
+    # Check if checkpoint exists
+    if os.path.exists(path + ".ckpt"):
+        ckpt = path + ".ckpt"
+    elif os.path.exists(path + "-v1.ckpt"):
+        ckpt = path + "-v1.ckpt"
     else:
-        ckpt = None
+        raise NameError(f"Could not find model with name: {save_name}")
 
-    # Setup callbacks list for training
-    callback_list: list[Callback] = []
-    if args.store_model and not args.dry_run:
-        ckpt_cb = ModelCheckpoint(
-            dirpath=str(ckpt_path.parent),  # Using parent directory of the checkpoint
-            filename=save_name + "_{epoch:02d}",
-        )
-
-        ckpt_cb_best = ModelCheckpoint(
-            dirpath=str(ckpt_path.parent),
-            filename=save_name,
-            monitor="val_loss",
-            mode="min"
-        )
-
-        callback_list += [ckpt_cb, ckpt_cb_best]
-
-    # Determine the number of devices, strategy and accelerator
-    strategy: str | Strategy
+    # Determine the number of devices, and accelerator
     if torch.cuda.is_available() and args.use_cuda:
-        devices = -1 if torch.cuda.device_count() > 1 else 1
-        strategy = DDPStrategy(find_unused_parameters=True,
-                               gradient_as_bucket_view=True) if devices == -1 else 'auto'
-        accelerator = "auto"
+        devices, accelerator = -1,  "auto"
     else:
-        devices, strategy, accelerator = 1, 'auto', "cpu"
+        devices, accelerator = 1, "cpu"
 
     # Setup logger
     logger: bool | Logger
@@ -85,12 +63,15 @@ def main(save_name: str) -> None:
     elif not args.use_logger:
         logger = False
     else:
-        run_name = f"{save_name}_{time.strftime('%d-%m_%H:%M:%S')}"
-        logger = WandbLogger(project="dronalize", name=run_name)
+        logger = CSVLogger(save_dir=os.path.join("lightning_logs", ds), name=save_name)
 
     # Setup model
     net = TorchModel(config["model"])
     model = LitModel(net, config["training"])
+
+    # Load checkpoint into model
+    ckpt_dict = torch.load(ckpt)
+    model.load_state_dict(ckpt_dict["state_dict"], strict=False)
 
     # Setup datamodule
     if args.root:
@@ -98,33 +79,23 @@ def main(save_name: str) -> None:
     datamodule = LitDataModule(config["datamodule"], args)
 
     # Setup trainer
-    trainer = Trainer(max_epochs=config["training"]["epochs"],
-                      logger=logger,
-                      devices=devices,
-                      strategy=strategy,
-                      accelerator=accelerator,
-                      callbacks=callback_list,
-                      fast_dev_run=args.dry_run,
-                      enable_checkpointing=args.store_model)
+    trainer = Trainer(accelerator=accelerator, devices=devices, logger=logger)
 
-    # Start training
-    trainer.fit(model, datamodule=datamodule, ckpt_path=ckpt)
+    # Start testing
+    trainer.test(model, datamodule=datamodule, verbose=True)
 
 
 if __name__ == "__main__":
     seed_everything(args.seed, workers=True)
 
-    mdl_name = config["model"]["class"]
     ds_name = config["dataset"]
+    mdl_name = config["model"]["class"]
     add_name = f"-{args.add_name}" if args.add_name else ""
 
     full_save_name = f"{mdl_name}{add_name}-{ds_name}"
 
-    if args.dry_run:
-        full_save_name += "-DEBUG"
-
     print('----------------------------------------------------')
-    print(f'\nGetting ready to train model: {full_save_name} \n')
+    print(f'\nGetting ready to test model: {full_save_name} \n')
     print('----------------------------------------------------')
 
     main(full_save_name)
