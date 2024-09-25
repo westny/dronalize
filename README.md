@@ -600,7 +600,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > - Road user classes: car, truck, bus, motorcycle
 
 <div align="center">
-  <img src=media/exiD.gif alt="exiD.gif">
+  <img src=https://github.com/user-attachments/assets/69a75f22-2cdf-414d-8238-aefe246f7803 alt="exiD.gif">
 </div>
 
 ***
@@ -632,7 +632,7 @@ They are freely available for non-commercial use, which is our targeted audience
 > - All road users classes: car, truck/bus, bicycle, pedestrian
 
 <div align="center">
-  <img src=media/uniD.gif alt="uniD.gif">
+  <img src=https://github.com/user-attachments/assets/ac11c28c-4d25-4d06-8f6d-90d0140065df alt="uniD.gif">
 </div>
 
 ***
@@ -667,19 +667,19 @@ They are freely available for non-commercial use, which is our targeted audience
 
 <table>
   <tr>
-    <td><img src="media/Chongqing_NR.png" alt="Chongqing_NR"/></td>
-    <td><img src="media/Changchun_Pudong.png" alt="Changchun_Pudong"/></td>
-    <td><img src="media/Xi'an_Shanglin.png" alt="Xi'an_Shanglin"/></td>
+    <td><img src=https://github.com/user-attachments/assets/d458a2bb-2443-421c-8b54-49a34535651a alt="Chongqing_NR"/></td>
+    <td><img src=https://github.com/user-attachments/assets/477693df-3e85-42e0-a317-e69ac16dcc09 alt="Changchun_Pudong"/></td>
+    <td><img src=https://github.com/user-attachments/assets/6facdf9f-dbfa-412c-861a-3eda9bb4e4ed alt="Xi'an_Shanglin"/></td>
   </tr>
 </table>
 
 <br>
 
 #### Using the SIND Dataset
-We provide two options to using the SIND dataset: 1) using the entire dataset, or 2) using the demo dataset available on the [SIND GitHub repository](www.github.com/SOTIF-AVLab/SinD).
+We provide two options for using the SIND dataset: 1) using the entire dataset, or 2) using the demo dataset available on the [SIND GitHub repository](www.github.com/SOTIF-AVLab/SinD).
 Using the demo dataset is recommended for users who want to quickly test the toolbox.
-Its use is straightforward, simply name the repository root folder `SIND_demo`, place in the `datasets` directory and run the preprocessing script with the `demo` configuration.
-> Note that some files in the repo are quite large and may require the use of git-lfs to download properly.
+Its use is straightforward, simply name the repository root folder `SIND_demo`, place it in the `datasets` directory, and run the preprocessing script with the `demo` configuration.
+> Note that some files in the repo are quite large and may require git-lfs to download properly.
 
 
 For users who want to use the entire dataset, we ask you to organize the data to match the structure of the other datasets.
@@ -699,7 +699,7 @@ SIND
     └── Xi'an_Shanglin.osm
 ```
 
-> Note that `map_relink_law_save.osm` need to be downloaded from the GitHub repository.
+> Note that `map_relink_law_save.osm` needs to be downloaded from the GitHub repository.
 
 ***
 
@@ -733,9 +733,9 @@ SIND
 
 <table>
   <tr>
-    <td><img src=https://data.isac.rwth-aachen.de/wp-content/uploads/2023/07/Screenshot_Drohne_Ost.png alt="East"/></td>
+    <td><img src=https://github.com/user-attachments/assets/a91f70de-10d5-4ae1-9e13-87d5d2ecf9a5 alt="East"/></td>
   </tr>
-    <td><img src=https://data.isac.rwth-aachen.de/wp-content/uploads/2023/07/Screenshot_Drohne_West.png alt="West"/></td>
+    <td><img src=https://github.com/user-attachments/assets/5596b220-7943-44e0-971c-3cb6b2f6d987 alt="West"/></td>
 </table>
 
 <br>
