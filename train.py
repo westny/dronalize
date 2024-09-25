@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import time
-import pathlib
-import warnings
-import torch
 
+import time
+import warnings
+from pathlib import Path
+
+import torch
 from torch.multiprocessing import set_sharing_strategy
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.callbacks import Callback, ModelCheckpoint
@@ -25,7 +25,7 @@ from lightning.pytorch.loggers import Logger, WandbLogger
 from lightning.pytorch.strategies import Strategy, DDPStrategy
 
 from arguments import args
-from preamble import load_config, import_from_module
+from utils import load_config, import_from_module
 
 torch.set_float32_matmul_precision('medium')
 warnings.filterwarnings("ignore", ".*Consider increasing the value of the `num_workers` argument*")
@@ -42,11 +42,11 @@ LitModel = import_from_module(config["litmodule"]["module"], config["litmodule"]
 
 def main(save_name: str) -> None:
     ds = config["dataset"]
-    ckpt_path = pathlib.Path(os.path.join("saved_models", ds, f"{save_name}.ckpt"))
+    ckpt_path = Path("saved_models") / ds / save_name
 
     # Check if checkpoint exists and the overwrite flag is not set
-    if ckpt_path.exists() and not args.overwrite:
-        ckpt = str(ckpt_path)
+    if ckpt_path.with_suffix(".ckpt").exists() and not args.overwrite:
+        ckpt = str(ckpt_path) + ".ckpt"
     else:
         ckpt = None
 
@@ -88,16 +88,16 @@ def main(save_name: str) -> None:
         run_name = f"{save_name}_{time.strftime('%d-%m_%H:%M:%S')}"
         logger = WandbLogger(project="dronalize", name=run_name)
 
-    # Setup model
+    # Setup model, datamodule and trainer
     net = TorchModel(config["model"])
     model = LitModel(net, config["training"])
 
-    # Setup datamodule
     if args.root:
         config["datamodule"]["root"] = args.root
+
     datamodule = LitDataModule(config["datamodule"], args)
 
-    # Setup trainer
+    # Setup Lightning Trainer
     trainer = Trainer(max_epochs=config["training"]["epochs"],
                       logger=logger,
                       devices=devices,

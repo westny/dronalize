@@ -28,7 +28,7 @@ jobs:
     
     - name: Build the Apptainer image
       run: |
-        cd container
+        cd build
         apptainer build dronalize.sif apptainer.def
 
     - name: Download Data
@@ -38,4 +38,4 @@ jobs:
 
     - name: Run PyTorch Training Loop
       run: |
-        apptainer run container/dronalize.sif python train.py --config ci
+        apptainer run build/dronalize.sif python train.py --config ci

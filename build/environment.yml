@@ -7,9 +7,9 @@ channels:
 dependencies:
   - python=3.11
   - pip
-  - pytorch=2.2
-  - torchvision
+  - pytorch=2.2.*
   - pytorch-cuda=12.1
+  - numpy=1.26.*
   - lightning
   - wandb
   - scikit-learn
@@ -18,10 +18,12 @@ dependencies:
   - matplotlib
   - pandas
   - utm
+  - pyproj
   - pyarrow
-  - pyg
+  #  - pyg  # PyG has stopped working with conda
   - pytorch-cluster
   - pytorch-scatter
   - pip:
+      - torch_geometric
       - osmium
       - networkx

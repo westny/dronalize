@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import json
+import yaml
 import importlib
 from typing import Callable
 from pathlib import Path
@@ -21,8 +21,8 @@ from pathlib import Path
 
 def load_config(config: str) -> dict:
     # check if file contains ".json" extension
-    if not config.endswith(".json"):
-        config += ".json"
+    if not config.endswith(".yml"):
+        config += ".yml"
 
     # check if file exists in any of the config subdirectories
     config_path = Path("configs")
@@ -40,7 +40,7 @@ def load_config(config: str) -> dict:
     config = [str(f) for f in files if config in f.name][0]
 
     with open(config, 'r', encoding='utf-8') as openfile:
-        conf = json.load(openfile)
+        conf = yaml.safe_load(openfile)
     return conf
 
 

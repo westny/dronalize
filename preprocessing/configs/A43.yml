@@ -1,0 +1,30 @@
+# Description: Configuration file for the A43 dataset
+description: A43 dataset by ISAC
+
+dataset: A43
+seed: 42
+sample_freq: 10
+downsample: 2
+input_len: 2
+output_len: 5
+n_inputs: 7
+n_outputs: 7
+skip_lc_samples: 12
+skip_lk_samples: 25
+
+# Graph
+lane_graph:
+  buffer: 2.0
+  spacing: 10.0
+
+# Recordings
+recordings:
+  DroneDataEastToWestCSV_220725:
+    include: true
+    lane_markings:
+    - -3.75;0;3.75;7.5
+  DroneDataWestToEastCSV_220725:
+    include: true
+    lane_markings:
+    - -7.5;-3.75;0;3.75;7.5
+

@@ -2,6 +2,7 @@
 data/
 lightning_logs/
 wandb/
+/saved_models/
 
 ### Apptainer ###
 *.sif
@@ -191,7 +192,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/

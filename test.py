@@ -15,14 +15,15 @@
 
 import os
 import warnings
-import torch
+from pathlib import Path
 
+import torch
 from torch.multiprocessing import set_sharing_strategy
 from lightning.pytorch import Trainer, seed_everything
 from lightning.pytorch.loggers import Logger, CSVLogger
 
 from arguments import args
-from preamble import load_config, import_from_module
+from utils import load_config, import_from_module
 
 torch.set_float32_matmul_precision('medium')
 warnings.filterwarnings("ignore", ".*Consider increasing the value of the `num_workers` argument*")
@@ -39,19 +40,20 @@ LitModel = import_from_module(config["litmodule"]["module"], config["litmodule"]
 
 def main(save_name: str) -> None:
     ds = config["dataset"]
-    path = os.path.join("saved_models", ds, save_name)
+    path = Path("saved_models") / ds / save_name
 
     # Check if checkpoint exists
-    if os.path.exists(path + ".ckpt"):
-        ckpt = path + ".ckpt"
-    elif os.path.exists(path + "-v1.ckpt"):
-        ckpt = path + "-v1.ckpt"
+    if path.with_suffix(".ckpt").exists():
+        ckpt = path.with_suffix(".ckpt")
+    elif path.with_name(path.name + "-v1").with_suffix(".ckpt").exists():
+        ckpt = path.with_name(path.name + "-v1").with_suffix(".ckpt")
     else:
-        raise NameError(f"Could not find model with name: {save_name}")
+        if not args.dry_run:
+            raise NameError(f"Could not find model with name: {save_name}")
 
     # Determine the number of devices, and accelerator
     if torch.cuda.is_available() and args.use_cuda:
-        devices, accelerator = -1,  "auto"
+        devices, accelerator = -1, "auto"
     else:
         devices, accelerator = 1, "cpu"
 
@@ -70,8 +72,14 @@ def main(save_name: str) -> None:
     model = LitModel(net, config["training"])
 
     # Load checkpoint into model
-    ckpt_dict = torch.load(ckpt)
-    model.load_state_dict(ckpt_dict["state_dict"], strict=False)
+    try:
+        ckpt_dict = torch.load(ckpt, weights_only=True)
+    except UnboundLocalError:
+        if not args.dry_run:
+            raise FileNotFoundError(f"Could not find checkpoint: {ckpt}")
+    else:
+        print(f"Loading checkpoint: {ckpt}")
+        model.load_state_dict(ckpt_dict["state_dict"], strict=False)
 
     # Setup datamodule
     if args.root:
@@ -88,8 +96,8 @@ def main(save_name: str) -> None:
 if __name__ == "__main__":
     seed_everything(args.seed, workers=True)
 
-    ds_name = config["dataset"]
     mdl_name = config["model"]["class"]
+    ds_name = config["dataset"]
     add_name = f"-{args.add_name}" if args.add_name else ""
 
     full_save_name = f"{mdl_name}{add_name}-{ds_name}"

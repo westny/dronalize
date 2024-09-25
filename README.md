@@ -17,15 +17,16 @@ ______________________________________________________________________
 
 </div>
 
-**Dronalize** is a toolbox designed to alleviate the development efforts of researchers working with the **D**rone datasets from [leveLXData](https://levelxdata.com/) on behavior prediction problems.
+**Dronalize** is a toolbox designed to alleviate the development efforts of researchers working with various drone datasets on behavior prediction problems.
 It includes tools for data preprocessing, visualization, and evaluation, as well as a model development pipeline for data-driven motion forecasting.
-<br> The toolbox relies heavily on [<img alt="Pytorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src=https://github.com/westny/dronalize/assets/60364134/53554175-0ca1-4020-b8eb-7bbd4ebe0e47 height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/), and [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) for its functionality.
+<br> The toolbox utilizes [<img alt="Pytorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src=https://github.com/westny/dronalize/assets/60364134/53554175-0ca1-4020-b8eb-7bbd4ebe0e47 height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/), and [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) for its functionality.
 
-***
+**📰 Latest Updates**
 
-#### 
-*All code in this repository is developed by the authors of the paper and is not an official product of [leveLXData](https://levelxdata.com/).
-All inquiries regarding the datasets should be directed to them.*
+- 🚀 Added 4 new datasets to the toolbox: *exiD*, *uniD*, *SIND*, and *A43*.
+- 🔧 Added more attributes to the lane graphs and improved preprocessing scripts.
+- 📦 Added pre-built Docker image to Docker Hub.
+- 🐍 Added PyPi installation instructions.
 
 ***
 
@@ -39,19 +40,44 @@ All inquiries regarding the datasets should be directed to them.*
 # Installation
 There are several alternatives to installation, depending on your needs and preferences.
 Our recommendation and personal preference is to use containers for reproducibility and consistency across different environments.
-We have provided both an Apptainer and a Dockerfile for this purpose.
+We have provided both an Apptainer `.def` file and a `Dockerfile` for this purpose.
 Both recipes use the `mamba` package manager for creating the environments. 
-In both cases, they utilize an `environment.yml` file that could be used to create a local conda environment if desired.
+In both cases, they utilize the same `environment.yml` file that could also be used to create a local conda environment if desired.
+Additionally, we provide a `requirements.txt` file for those who prefer to use `pip` for package management.
+All necessary files to install the required dependencies are found in the [build](build) directory.
 
 ### <img alt="Apptainer logo" src=https://github.com/westny/dronalize/assets/60364134/6a9e51ae-c6ce-4ad1-b79f-05ca7d959062 width="110">
-[Apptainer](https://apptainer.org/docs/user/main/index.html) is a lightweight containerization tool that we prefer for its simplicity and ease of use.
-Once installed, you can build the container by running the following command:
+[Apptainer](https://apptainer.org/docs/user/main/index.html) is commonly used in high-performance computing (HPC) for creating secure, portable, and reproducible environments. It is well-suited for research and scientific workflows.
+It is a lightweight containerization tool that we prefer for its simplicity and ease of use.
+
+<details>
+  <summary>Click here for Installation Instructions</summary>
+
+### Installation Instructions:
+
+If you have not already done so, start by installing Apptainer on your system by following the instructions on the [Apptainer website](https://apptainer.org/docs/user/main/quick_start.html#installation).
+
+#### Option 1: Pull a Pre-built Image from Docker Hub
+
+You can pull a pre-built image from Docker Hub by running the following command:
+
+```bash
+apptainer pull dronalize.sif docker://westny/dronalize:latest
+```
+
+This will download the latest version of the image to your local machine.
+
+
+#### Option 2: Build the Image Locally
+You can build the container by running the following command:
 
 ```bash
 apptainer build dronalize.sif /path/to/definition_file
 ```
 
 where `/path/to/definition_file` is the path to the `apptainer.def` file in the repository.
+
+### Running the Container
 Once built, it is very easy to run the container as it only requires a few extra arguments. 
 For example, to start the container and execute the `train.py` script, you can run the following command from the repository root directory:
 
@@ -65,14 +91,47 @@ If you have CUDA installed and want to use GPU acceleration, you can add the `--
 apptainer run --nv /path/to/dronalize.sif python train.py
 ```
 
+</details>
+
 ### <img alt="Docker logo" src=https://github.com/westny/dronalize/assets/60364134/1bf2df76-ab44-4bae-9623-03710eff0572 width="100">
-If you prefer to use [Docker](https://www.docker.com/get-started/), you can build the container by running the following command from the container root directory:
+[Docker](https://www.docker.com/get-started/) is a widely adopted platform for automating the deployment and management of containerized applications. It is suitable for users familiar with containers or those needing an isolated runtime environment.
+
+<details>
+  <summary>Click here for Installation Instructions</summary>
+
+  ### Installation Instructions:
+
+If you have not already done so, start by installing Docker on your system by following the instructions on the [Docker website](https://docs.docker.com/get-docker/).
+
+#### Option 1: Pull a Pre-built Image from Docker Hub
+
+You can pull a pre-built image from Docker Hub by running the following command:
+
+```bash
+docker pull westny/dronalize:latest
+```
+
+This will download the latest version of the image to your local machine.
+
+We recommend tagging the image for easier use:
+
+```bash
+docker tag westny/dronalize:latest dronalize
+```
+
+#### Option 2: Build the Image Locally
+
+You can build the image by running the following command from the container root directory:
 
 ```bash 
 docker build -t dronalize .
 ```
 
 This will create a Docker image named `dronalize` with all the necessary dependencies.
+
+
+### Running the Container
+
 To run the container, you can use the following command:
 
 ```bash
@@ -86,14 +145,40 @@ Example of how this is done from the repository root directory:
 docker run -v "$(pwd)":/app -w /app dronalize python train.py
 ```
 
-To use GPU acceleration, you need to install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) and run the container with the `--gpus all` flag.
+### GPU Acceleration
+
+To use GPU acceleration, you need to install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+
+```bash
+# Add the NVIDIA repository
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+# Update and install
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+and run the container with the `--gpus all` flag.
 
 ```bash
 docker run --gpus all -v "$(pwd)":/app -w /app dronalize python train.py
 ```
 
+</details>
+
 ### <img alt="Conda logo" src=https://github.com/westny/dronalize/assets/60364134/52d02aa9-6231-4261-8e0f-6c092991c89c width="100">
-If you prefer to not use containers, you can create a [conda](https://conda.io/projects/conda/en/latest/index.html) environment using the `environment.yml` file.
+[Conda](https://conda.io/projects/conda/en/latest/index.html) is a package and environment manager that allows users to create isolated environments without using containers.
+It is useful for managing dependencies in Python and other languages.
+
+<details>
+  <summary>Click here for Installation Instructions</summary>
+
+  ### Installation Instructions:
+
+You can create a [conda](https://conda.io/projects/conda/en/latest/index.html) environment using the provided `environment.yml` file.
+
 To create the environment, run the following command:
 
 ```bash
@@ -114,6 +199,52 @@ conda activate dronalize
 
 The environment is now ready to use, and you can run the scripts in the repository.
 
+To deactivate the environment, run:
+
+```bash
+conda deactivate
+```
+
+</details>
+
+### <img alt="Pypi logo" src=https://res.cloudinary.com/practicaldev/image/fetch/s--4-K6Sjm4--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://cdn-images-1.medium.com/max/1600/1%2A_Wkc-WkNu6GJAAQ26jXZOg.png width="100">
+<a id="pypi"></a>
+Using `pip` to install dependencies directly from PyPI is a straightforward approach. This option works well for users who prefer not to use containers or conda environments but want to manage dependencies via a `requirements.txt` file.
+We recommend using a virtual environment to avoid conflicts with other packages.
+
+<details>
+  <summary>Click here for Installation Instructions</summary>
+
+  ### Installation Instructions:
+
+First, create a new virtual environment using `venv`:
+
+```bash
+python3.x -m venv pyresidual
+```
+where `x` is the version of Python you are using, e.g., `3.11` (used in the containers).
+
+Activate the virtual environment:
+```bash
+source pyresidual/bin/activate
+```
+
+Then install the required packages using `pip`:
+```bash
+pip install -r /path/to/requirements.txt
+```
+
+The environment is now ready to use, and you can run the scripts in the repository.
+
+To deactivate the virtual environment, run:
+
+```bash
+deactivate
+```
+
+Anytime you want to use the environment, you need to activate it again.
+</details>
+
 <br>
 
 # Usage
@@ -124,20 +255,22 @@ It was developed to be used in conjunction with [<img alt="PyTorch logo" src=htt
 
 > Before running the preprocessing scripts, make sure to unzip the downloaded datasets and place them in a directory of your choice.
 > By default, the scripts expect the datasets to be located in the `../datasets` directory, but this can be changed by specifying the `--path` argument.
-> Make sure the unzipped folders are named `highD`, `rounD`, and `inD`, respectively.
+> Make sure the unzipped folders are named `highD`, `rounD`, `inD`, `exiD`, `uniD`, `SIND`*, and `A43` respectively.
+> 
+> *Please see the [Datasets](#datasets) section for additional information on `SIND` file structure.
 
 All functionality related to data preprocessing is contained in the `preprocessing` module.
-Since the **D**rone datasets have minor differences in their structure, there are two separate scripts for preprocessing depending on the dataset used.
-For example, to preprocess the `inD` or `rounD` datasets, you can run the following command (replace `dataset_name` with the respective dataset name):
+Since the datasets have minor differences in their structure, there are separate scripts for preprocessing depending on the dataset used.
+For example, to preprocess the `inD`, `rounD`, `uniD` or `SIND` datasets, you can run the following command (replace `dataset_name` with the respective dataset name):
 
 ```bash
-python -m preprocessing.preprocess_urban.py --dataset 'dataset_name' --path 'path/to/datasets'
+python -m preprocessing.preprocess_urban.py --config 'dataset_name' --path 'path/to/datasets'
 ```
 
-while for the `highD` dataset, you should run:
+for the `highD`, `exiD` or `A43` datasets, you should run:
 
 ```bash
-python -m preprocessing.preprocess_highway.py --dataset 'highD' --path 'path/to/datasets'
+python -m preprocessing.preprocess_highway.py --config 'dataset_name' --path 'path/to/datasets'
 ```
 
 By default, these scripts will save the preprocessed data in the `data` directory, this can be changed by specifying the `--output-dir` argument.
@@ -155,8 +288,8 @@ Using Apptainer, the shell script can be executed as follows:
   apptainer run /path/to/dronalize.sif bash preprocess.sh
 ``` 
 
-> Depending on the dataset and the number of workers, preprocessing can some time.
-> In our experience, preprocessing all datasets takes around 5 hours on a standard workstation with 8 cores and 32 GB of RAM.
+> Depending on the dataset, the number of workers, and your hardware, preprocessing can some time.
+> Expect a few hours to process **all** datasets with threading enabled. Of course, this only needs to be done once.
 
 
 ### Data Loading
@@ -230,7 +363,7 @@ It also details how to use the proposed evaluation metrics for trajectory predic
 
 An example of how to train the model is shown below:
 ```bash
-  [apptainer run --nv path/to/dronalize.sif] python train.py --add-name test --dry-run 0 --use-cuda 1 --n-workers 4
+  [apptainer run --nv path/to/dronalize.sif] python train.py --add-name test --dry-run 0 --use-cuda 1 --num-workers 4
 ```
 
 We recommend users modify the default arguments in [arguments.py](arguments.py) to suit their needs.
@@ -252,7 +385,7 @@ Setting `min_criterion` to `MAP` will evaluate the metrics based on the mode wit
 Note that `MAP` can only be used in conjunction with the optional argument `Prob` of shape `(batch_size, num_modes)` representing the weights of each mode.
 
 The following metrics are implemented:
-- [**Min. Average Displacement Error (minADE)**](metrics/min_ade.py):
+- [**Min. Average Displacement Error (minADE)**](metrics/min_ade.py)
 - [**Min. Final Displacement Error (minFDE)**](metrics/min_fde.py)
 - [**Min. Average Path Displacement Error (minAPDE)**](metrics/min_apde.py)
 - [**Miss Rate**](metrics/miss_rate.py)
@@ -266,21 +399,28 @@ For their mathematical definitions, please refer to the paper.
 
 # Datasets
 
-The toolbox has been developed for use of the *[highD](https://levelxdata.com/highd-dataset/)*, *[rounD](https://levelxdata.com/round-dataset/)*, and *[inD](https://levelxdata.com/ind-dataset/)* datasets.
-The datasets contain recorded trajectories from different locations in Germany, including various highways, roundabouts, and intersections.
-Their high quality and reliability make them particularly suitable for early-stage research and development.
-They are freely available for non-commercial use, which is our targeted audience, but require applying for usage through the links: 
-- *[highD](https://levelxdata.com/highd-dataset/)*
-- *[rounD](https://levelxdata.com/round-dataset/)*
-- *[inD](https://levelxdata.com/ind-dataset/)*
+The toolbox has been developed for use of the *[highD](https://levelxdata.com/highd-dataset/)*, *[rounD](https://levelxdata.com/round-dataset/)*, *[inD](https://levelxdata.com/ind-dataset/)*, *[exiD](https://levelxdata.com/exid-dataset/)*, *[uniD](https://levelxdata.com/unid-dataset/)*, *[SIND](https://github.com/SOTIF-AVLab/SinD)*, and [A43](https://data.isac.rwth-aachen.de/?p=58) datasets.
+The datasets contain recorded trajectories from different locations in Germany and China, including various highways, roundabouts, and intersections.
+Their high quality make them particularly suitable for early-stage research and development.
+They are freely available for non-commercial use, which is our targeted audience, but most require applying for usage through the links: 
+
+<div align="center">
+
+| Dataset | Link                                     | Notes                                   |
+|---------|------------------------------------------|-----------------------------------------|
+| *highD* | https://levelxdata.com/highd-dataset/    |                                         |
+| *rounD* | https://levelxdata.com/round-dataset/    |                                         |
+| *inD*   | https://levelxdata.com/ind-dataset/      |                                         |
+| *exiD*  | https://levelxdata.com/exid-dataset/     |                                         |
+| *uniD*  | https://levelxdata.com/unid-dataset/     |                                         |
+| *SIND*  | https://github.com/SOTIF-AVLab/SinD      | Visit the GitHub link for email request |
+| *A43*   | https://data.isac.rwth-aachen.de/?p=58   | Directly downloadable at the link       |
+
+
+</div>
 
 > Several datasets in the leveLXData suite were recently updated (April 2024) that include improvements to the maps, as well as the addition of some new locations.
 > This toolbox is designed to work with the updated datasets, and we recommend using the latest versions for the most recent features to avoid having to modify the toolbox.
-> 
-> We found that the toolbox works with the *[uniD](https://levelxdata.com/unid-dataset/)* dataset with minor adjustments, but we have yet to evaluate it in detail.
->
-> We are working on adding support for the *[exiD](https://levelxdata.com/exid-dataset/)* dataset that we aim to include in future versions of the toolbox.
-
 ***
 
 ### *[highD](https://arxiv.org/abs/1810.05642)*: The Highway Drone Dataset
@@ -324,7 +464,7 @@ They are freely available for non-commercial use, which is our targeted audience
 
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on six different recording locations
-> - In total 110 500 vehicles
+> - In total ~ 110,500 vehicles
 > - Road user classes: car, trucks
 
 <div align="center">
@@ -366,8 +506,8 @@ They are freely available for non-commercial use, which is our targeted audience
 
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on three different recording locations
-> - In total ~ 13 740 road users
-> - Road user classes: car, van, trailer, truck, bus, pedestrians, bicyclists, motorcyclists
+> - In total ~ 13,740 road users
+> - Road user classes: car, trailer, truck, bus, motorcycle, bicycle, pedestrian
 
 <div align="center">
   <img src=https://github.com/westny/dronalize/assets/60364134/89b37a52-9b78-42a6-9386-0b2d5b5caf33 alt="rounD.gif">
@@ -423,23 +563,190 @@ They are freely available for non-commercial use, which is our targeted audience
 
 > #### Dataset Overview
 > - Naturalistic trajectory dataset on four different recording locations
-> - In total ~ 8200 vehicles and ~ 5300 vulnerable road users (VRUs)
-> - Road user classes: car, truck/bus, pedestrians, bicyclists
+> - In total ~ 8,200 vehicles and ~ 5,300 vulnerable road users (VRUs)
+> - Road user classes: car, truck/bus, bicycle, pedestrian
 
 <div align="center">
   <img src=https://github.com/westny/dronalize/assets/60364134/98c48e3a-8ac8-4896-863c-c26e08d6764b alt="inD.gif">
 </div>
 
+***
+
+### *[exiD](https://ieeexplore.ieee.org/document/9827305)*: The Entries and Exits Drone Dataset
+
+<details>
+  <summary>Abstract</summary>
+    <p style="font-style: italic;">
+        Development and safety validation of highly automated vehicles increasingly relies on data and data-driven methods. In processing sensor datasets for environment perception, it is common to use public and commercial datasets for training and evaluating machine learning based systems. For system-level evaluation and safety validation of an automated driving system, real-world trajectory datasets are of great value for several tasks in the process, i.a. for testing in simulation, scenario extraction or training of road user agent models. Ground-based recording methods such as sensor-equipped vehicles or infrastructure sensors are sometimes limited, for instance, due to their field of view. Camera-equipped drones, however, offer the ability to record road users without vehicle-to-vehicle occlusion and without influencing traffic. The highway drone dataset (highD) has shown that the recording method is efficient in terms of cumulative kilometers and has become a benchmark dataset for many research questions. It contains many vehicle interactions due to dense traffic, but lacks merging scenarios, which are challenging for highly automated vehicles. Therefore, we propose this highway drone dataset called exiD, recorded using camera-equipped drones at entries and exits on the German Autobahn. The dataset contains 69 172 road users classified as car, truck and vans and a total amount of more than 16 hours of measurement data.
+    </p>
+</details>
+
+<details>
+  <summary>Bibtex</summary>
+
+    @inproceedings{exiDdataset,
+        title={The exiD Dataset: A Real-World Trajectory Dataset of Highly Interactive Highway Scenarios in Germany},
+        author={Moers, Tobias and Vater, Lennart and Krajewski, Robert and Bock, Julian and Zlocki, Adrian and Eckstein, Lutz},
+        booktitle={2022 IEEE Intelligent Vehicles Symposium (IV)},
+        pages={958-964},
+        year={2022},
+        doi={10.1109/IV51971.2022.9827305}
+    }
+</details>
+
+> #### Dataset Overview
+> - Naturalistic trajectory dataset on seven different recording locations
+> - In total ~ 69,430 road users
+> - Road user classes: car, truck, bus, motorcycle
+
+<div align="center">
+  <img src=media/exiD.gif alt="exiD.gif">
+</div>
+
+***
+
+### *[uniD](https://levelxdata.com/unid-dataset/)*: The University Drone Dataset
+
+<details>
+  <summary>Abstract</summary>
+    <p style="font-style: italic;">
+        The uniD dataset is an innovative collection of naturalistic road user trajectories, captured within the RWTH Aachen University campus using drone technology to address common challenges such as occlusions found in traditional traffic data collection methods. It meticulously documents the movement and classifies each road user by type. Employing cutting-edge computer vision algorithms, the dataset ensures high positional accuracy. Its utility spans various applications, from predicting road user behavior and modeling driver actions to conducting scenario-based safety checks for automated driving systems and facilitating the data-driven design of Highly Automated Driving (HAD) system components.
+    </p>
+</details>
+
+<details>
+  <summary>Bibtex</summary>
+
+    @misc{uniDdataset,
+      title = {{The uniD Dataset: A} university drone dataset},
+      author = {{leveLXData}},
+      year = {2024},
+      howpublished = {\url{https://levelxdata.com/unid-dataset/}},
+      note = {Accessed: ...}
+    }
+</details>
+
+> #### Dataset Overview
+> - Naturalistic trajectory dataset on one recording location
+> - In total ~ 1,380 vehicles and ~ 8,600 vulnerable road users (VRUs)
+> - All road users classes: car, truck/bus, bicycle, pedestrian
+
+<div align="center">
+  <img src=media/uniD.gif alt="uniD.gif">
+</div>
+
+***
+
+### *[SIND](https://arxiv.org/abs/2209.02297)*: A Drone Dataset at Signalized Intersection in China
+
+<details>
+  <summary>Abstract</summary>
+    <p style="font-style: italic;">
+        Intersection is one of the most challenging scenarios for autonomous driving tasks. Due to the complexity and stochasticity, essential applications (e.g., behavior modeling, motion prediction, safety validation, etc.) at intersections rely heavily on data-driven techniques. Thus, there is an intense demand for trajectory datasets of traffic participants (TPs) in intersections. Currently, most intersections in urban areas are equipped with traffic lights. However, there is not yet a large-scale, high-quality, publicly available trajectory dataset for signalized intersections. Therefore, in this paper, a typical two-phase signalized intersection is selected in Tianjin, China. Besides, a pipeline is designed to construct a Signalized INtersection Dataset (SIND), which contains 7 hours of recording including over 13,000 TPs with 7 types. Then, the behaviors of traffic light violations in SIND are recorded. Furthermore, the SIND is also compared with other similar works. The features of the SIND can be summarized as follows: 1) SIND provides more comprehensive information, including traffic light states, motion parameters, High Definition (HD) map, etc. 2) The category of TPs is diverse and characteristic, where the proportion of vulnerable road users (VRUs) is up to 62.6% 3) Multiple traffic light violations of non-motor vehicles are shown. We believe that SIND would be an effective supplement to existing datasets and can promote related research on autonomous driving.
+    </p>
+</details>
+
+<details>
+  <summary>Bibtex</summary>
+
+    @inproceedings{xu2022drone,
+      title={{SIND: A} drone dataset at signalized intersection in China},
+      author={Xu, Yanchao and Shao, Wenbo and Li, Jun and Yang, Kai and Wang, Weida and Huang, Hua and Lv, Chen and Wang, Hong},
+      booktitle={25th International Conference on Intelligent Transportation Systems (ITSC)},
+      pages={2471--2478},
+      year={2022},
+      organization={IEEE}
+    }
+</details>
+
+> #### Dataset Overview
+> - Naturalistic trajectory dataset on four different recording locations
+> - Over 13,000 traffic participants of various types
+> - Traffic light states included
+> - Road user classes: car, truck, bus, motorcycle, tricycle, bicycle, pedestrian
+
+<table>
+  <tr>
+    <td><img src="media/Chongqing_NR.png" alt="Chongqing_NR"/></td>
+    <td><img src="media/Changchun_Pudong.png" alt="Changchun_Pudong"/></td>
+    <td><img src="media/Xi'an_Shanglin.png" alt="Xi'an_Shanglin"/></td>
+  </tr>
+</table>
+
+<br>
+
+#### Using the SIND Dataset
+We provide two options to using the SIND dataset: 1) using the entire dataset, or 2) using the demo dataset available on the [SIND GitHub repository](www.github.com/SOTIF-AVLab/SinD).
+Using the demo dataset is recommended for users who want to quickly test the toolbox.
+Its use is straightforward, simply name the repository root folder `SIND_demo`, place in the `datasets` directory and run the preprocessing script with the `demo` configuration.
+> Note that some files in the repo are quite large and may require the use of git-lfs to download properly.
+
+
+For users who want to use the entire dataset, we ask you to organize the data to match the structure of the other datasets.
+Rename the parent folder to `SIND` and make sure it has the following structure:
+```
+SIND
+├── data
+│   ├── 6_22_NR_1
+│   ├── 6_22_NR_2
+│   ├── ...
+│   ├── xian_415_n2
+│   └── xian_415_n5
+└── maps
+    ├── Changchun_Pudong.osm
+    ├── map_relink_law_save.osm
+    ├── NR_ll2.osm
+    └── Xi'an_Shanglin.osm
+```
+
+> Note that `map_relink_law_save.osm` need to be downloaded from the GitHub repository.
+
+***
+
+### *[A43](https://data.isac.rwth-aachen.de/?p=58)*: Vehicle Trajectory Dataset from Drone Videos Including Off-Ramp and Congested Traffic
+
+<details>
+  <summary>Abstract</summary>
+    <p style="font-style: italic;">
+        Vehicle trajectory data have become essential for many research fields, such as traffic flow, traffic safety and automated driving. In order to make trajectory data usable for researchers, an overview of the included road section and traffic situation as well as a description of the data processing methodology is necessary. In this paper, we present a trajectory dataset from a German highway with two lanes per direction, an off-ramp and congested traffic in one direction, and an on-ramp in the other direction. The dataset contains 8,648 trajectories and covers 87 minutes and a ~1,200 m long section of the road. The trajectories were extracted from drone videos using a post-trained yolov5 object detection model and projected onto the road surface using a 3D camera calibration. The post-processing methodology can compensate for most false detections and yield accurate speeds and accelerations. We present some applications of the data including a traffic flow analysis and accident risk analysis. The trajectory data are also compared with induction loop data and vehicle-based smartphone sensor data in order to evaluate the plausibility and quality of the trajectory data. The deviations of the speeds and accelerations are estimated at 0.45 m/s and 0.3 m/s2 respectively.
+    </p>
+</details>
+
+<details>
+  <summary>Bibtex</summary>
+
+    @article{berghaus2024vehicle,
+      title={Vehicle trajectory dataset from drone videos including off-ramp and congested traffic--Analysis of data quality, traffic flow, and accident risk},
+      author={Berghaus, Moritz and Lamberty, Serge and Ehlers, J{\"o}rg and Kall{\'o}, Eszter and Oeser, Markus},
+      journal={Communications in Transportation Research},
+      volume={4},
+      pages={100133},
+      year={2024},
+      publisher={Elsevier}
+    }
+</details>
+
+> #### Dataset Overview
+> - Naturalistic trajectory dataset from highway A43 near Münster, Germany
+> - In total ~ 8,600 vehicles
+> - All road users classes: car, truck, bus, motorcycle 
+
+<table>
+  <tr>
+    <td><img src=https://data.isac.rwth-aachen.de/wp-content/uploads/2023/07/Screenshot_Drohne_Ost.png alt="East"/></td>
+  </tr>
+    <td><img src=https://data.isac.rwth-aachen.de/wp-content/uploads/2023/07/Screenshot_Drohne_West.png alt="West"/></td>
+</table>
 
 <br>
 
 # Related work
-We have been working with the **D**rone datasets in several research projects, resulting in multiple published papers focused on behavior prediction.
+We have been working with the datasets in several research projects, resulting in multiple published papers focused on behavior prediction.
 If you're interested in learning more about our findings, please refer to the following publications:
 
 #### [Diffusion-Based Environment-Aware Trajectory Prediction](https://arxiv.org/abs/2403.11643)
 - **Authors:** Theodor Westny, Björn Olofsson, and Erik Frisk
-- **Published In:** Manuscript submitted for publication
+- **Published In:** ArXiv preprint arXiv:2403.11643
 
 <details>
   <summary>Abstract</summary>
@@ -538,7 +845,7 @@ If you use the toolbox in your research, please consider citing the paper:
 
 ```
 @article{westny2024dronalize,
-  title={A Preprocessing and Evaluation Toolbox for Trajectory Prediction Research on the Drone Datasets},
+  title={Toward Unified Practices in Trajectory Prediction Research on Drone Datasets},
   author={Westny, Theodor and Olofsson, Bj{\"o}rn and Frisk, Erik},
   journal={arXiv preprint arXiv:2405.00604},
   year={2024}

@@ -1,0 +1,80 @@
+# Description: Configuration file for the uniD dataset
+description: uniD dataset
+
+dataset: uniD
+seed: 42
+sample_freq: 25
+downsample: 5
+skip_samples: 25
+input_len: 3
+output_len: 5
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings:
+  '00':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '01':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '02':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '03':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '04':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '05':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '06':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '07':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  08:
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  09:
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '10':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '11':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613
+  '12':
+    include: true
+    location: 0_superc
+    x0: 121.46225158193216
+    y0: -86.64134747714613

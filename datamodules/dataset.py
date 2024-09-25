@@ -14,9 +14,13 @@
 
 import os
 import pickle
+import warnings
 from typing import Optional, Callable
 from torch_geometric.data import Dataset
 from torch_geometric.data import HeteroData
+
+# Ignore FutureWarnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 class DroneDataset(Dataset):
@@ -34,6 +38,7 @@ class DroneDataset(Dataset):
         self.split = split
         self.path = os.path.join(self.root, self.dataset, self.split)
         self.files = os.listdir(self.path)
+        self.files = sorted(self.files)  # sort files for consistency across operating systems
 
         if small_data:
             self.files = self.files[:100]

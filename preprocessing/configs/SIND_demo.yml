@@ -1,0 +1,36 @@
+# Description: Configuration file for the SIND dataset
+description: Partial SIND dataset
+
+dataset: SIND_demo
+full: false
+seed: 42
+sample_freq: 10 # Hz
+downsample: 2
+skip_samples: 25
+input_len: 3 # seconds
+output_len: 5 # seconds
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings:
+  Changchun:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  Chongqing:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  Tianjin:
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  Xi'an:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057

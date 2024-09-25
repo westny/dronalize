@@ -15,7 +15,8 @@
 import os
 import sys
 import time
-import json
+
+import yaml
 import pickle
 import warnings
 from typing import Any
@@ -27,7 +28,7 @@ import numpy as np
 from tqdm import tqdm
 
 from preprocessing.arguments import args
-from preprocessing.utils.lanelet_graph import get_lanelet_graph
+from preprocessing.utils.urban_utils import preprocess_levelxd, preprocess_sind
 from preprocessing.utils.common import *
 
 worker_counter: Any
@@ -50,6 +51,7 @@ def process_id(
         n_inputs: int = 7,
         n_outputs: int = 7,
         ds_factor: int = 5,
+        filt_ord: int = 7,
         skip: int = 12,
         debug: bool = False,
 ) -> None:
@@ -69,6 +71,7 @@ def process_id(
     :param n_inputs: The number of input features
     :param n_outputs: The number of output features
     :param ds_factor: The down-sampling factor
+    :param filt_ord: The filter order
     :param skip: The number of frames to skip
     :param dataset: The dataset name
     :param debug: Debug mode
@@ -114,8 +117,10 @@ def process_id(
 
         # Down-sample the data
         if ds_factor > 1:
-            input_array = decimate_nan(input_array, pad_order="front", ds_factor=ds_factor, fz=fz)
-            target_array = decimate_nan(target_array, pad_order="back", ds_factor=ds_factor, fz=fz)
+            input_array = decimate_nan(input_array, pad_order='front',
+                                       ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
+            target_array = decimate_nan(target_array, pad_order='back',
+                                        ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
 
         # Convert to tensors
         input_tensor = torch.from_numpy(input_array).float()
@@ -175,6 +180,7 @@ def process_id(
                 pickle.dump(data, file, protocol=pickle.HIGHEST_PROTOCOL)
     return None
 
+
 def process_ids(
         current_set: str,
         rec_id: str,
@@ -203,10 +209,11 @@ def process_ids(
     n_inputs = config["n_inputs"]
     n_outputs = config["n_outputs"]
     ds_factor = config["downsample"]
+    filt_ord = 2 if 'sind' in ds.lower() else 7
     skip = config["skip_samples"]
     debug = args.debug
 
-    outer_args = (ds, fz, input_len, output_len, n_inputs, n_outputs, ds_factor, skip, debug)
+    outer_args = (ds, fz, input_len, output_len, n_inputs, n_outputs, ds_factor, filt_ord, skip, debug)
 
     # Check if there are any saved samples in the current set directory
     set_dir = f"{output_dir}/{current_set}"
@@ -221,19 +228,15 @@ def process_ids(
     save_lock = Lock()
 
     ta_ids = list(
-        tr_meta[
-            tr_meta["class"].isin(["car", "van", "truck", "truck_bus", "bus",
-                                   "motorcycle", "bicycle", "pedestrian"])
-        ].trackId
+        tr_meta[~tr_meta["class"].isin(["animal", "trailer"])].trackId
     )
+
     frame_range = fr_dict[current_set]
     ta_ids_set = {ta_id for ta_id in ta_ids if
                   any(tr[tr.trackId == ta_id].frame.isin(frame_range))}
 
-    parked_vehicles = set(
-        tr_meta[(tr_meta.initialFrame == 0) &
-                (tr_meta.finalFrame == tr_meta.finalFrame.max())].trackId.values
-    )
+    parked_vehicles = set(tr_meta[(tr_meta.initialFrame == 0) &
+                                  (tr_meta.finalFrame == tr_meta.finalFrame.max())].trackId.values)
 
     ta_ids = list(ta_ids_set - parked_vehicles)
 
@@ -242,8 +245,8 @@ def process_ids(
          tr, ln_graph, current_set, *outer_args) for ta_id in ta_ids
     ]
 
+    n_workers = 1
     if args.use_threads:
-        n_workers = 1
         cpu_count = os.cpu_count()
         if cpu_count is None:
             warnings.warn("Could not determine the number of CPU cores. Using 1 thread.")
@@ -252,15 +255,12 @@ def process_ids(
         else:
             n_workers = cpu_count
 
-        with Pool(n_workers, initializer=init_worker,
-                  initargs=(save_id_counter, save_lock)) as pool:
-            with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
-                      position=1, leave=False) as pbar:
-                for _ in pool.imap_unordered(worker_function, arguments):
-                    pbar.update()
-    else:
-        for arg in tqdm(arguments, desc=f"{current_set.capitalize()}", position=1, leave=False):
-            process_id(*arg)
+    with Pool(n_workers, initializer=init_worker,
+              initargs=(save_id_counter, save_lock)) as pool:
+        with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
+                  position=1, leave=False) as pbar:
+            for _ in pool.imap_unordered(worker_function, arguments):
+                pbar.update()
 
 
 def init_worker(counter, lock):
@@ -274,24 +274,27 @@ def worker_function(arg: tuple) -> None:
     return process_id(*arg)
 
 
-def erase_previous_line(double_jump: bool = False):
-    """Erase the previous line in the terminal."""
-    sys.stdout.write("\x1b[1A")  # Move the cursor up one line
-    sys.stdout.write("\x1b[2K")  # Clear the entire line
-    if double_jump:
-        sys.stdout.write("\x1b[1A")
-
-
 if __name__ == "__main__":
     if args.debug:
         print("DEBUG MODE: ON \n")
 
-    output_dir = create_directories(args)
-    print(f"Output directory: {output_dir} \n")
+    config_file = args.config
+    if not config_file.endswith(".yml"):
+        config_file += ".yml"
 
-    with open("preprocessing/configs/" + args.dataset + ".json", "r",
-              encoding="utf-8") as conf_file:
-        config = json.load(conf_file)
+    config_file_pth = os.path.join("preprocessing", "configs", config_file)
+
+    assert os.path.exists(config_file_pth), f"Config file {config_file} not found."
+
+    print(f"Using config file: {config_file} \n")
+
+    with open(config_file_pth, "r", encoding="utf-8") as conf_file:
+        config = yaml.safe_load(conf_file)
+
+    dataset = config["dataset"]
+
+    output_dir = create_directories(args, dataset)
+    print(f"Output directory: {output_dir} \n")
 
     random_seed = config["seed"]
     np.random.seed(random_seed)
@@ -302,8 +305,8 @@ if __name__ == "__main__":
         if value["include"]:
             rec_ids.append(key)
 
-    if args.dataset == "inD":
-        temp_path = os.path.join(args.path, args.dataset, "maps", "lanelets")
+    if dataset == "inD":
+        temp_path = os.path.join(args.path, dataset, "maps", "lanelets")
         dirs = os.listdir(temp_path)
 
         # check if "01_bendplatz_constuction" is in the directory
@@ -314,8 +317,8 @@ if __name__ == "__main__":
                 os.path.join(temp_path, "01_bendplatz_construction"),
             )
 
-    elif args.dataset == "uniD":
-        temp_path = os.path.join(args.path, args.dataset, "maps")
+    elif dataset == "uniD":
+        temp_path = os.path.join(args.path, dataset, "maps")
         dirs = os.listdir(temp_path)
 
         # check if lanelet directory is named "lanelet" instead of "lanelets"
@@ -327,58 +330,22 @@ if __name__ == "__main__":
         for r_id in tqdm(rec_ids, desc="Main process: ", position=0, leave=True):
             print(f"Preprocessing started for recording {r_id}...")
 
-            # Get the approximate geographical center of the scene
-            p0 = (recordings[r_id]["x0"], recordings[r_id]["y0"])
+            if dataset.lower() in ("round", "ind", "unid"):
+                shared_args = preprocess_levelxd(
+                    args.path, r_id, config, output_dir, random_seed, dataset, args.debug
+                )
+            elif "sind" in dataset.lower():
+                shared_args = preprocess_sind(
+                    args.path, r_id, config, output_dir, random_seed, dataset, args.debug
+                )
+            else:
+                raise ValueError(f"Dataset {dataset} not supported.")
 
-            # Construct the base directory path for your data
-            base_dir = os.path.join(args.path, args.dataset, "data")
-
-            # Use os.path.join for each specific file
-            rec_meta_path = os.path.join(base_dir, f"{r_id}_recordingMeta.csv")
-            tracks_meta_path = os.path.join(base_dir, f"{r_id}_tracksMeta.csv")
-            tracks_path = os.path.join(base_dir, f"{r_id}_tracks.csv")
-
-            # Read the CSV files
-            rec_meta = pd.read_csv(rec_meta_path)
-            tracks_meta = pd.read_csv(tracks_meta_path)
-            tracks = pd.read_csv(tracks_path)
-
-            # For the lanelet file, construct the path similarly
-            location = recordings[r_id]["location"]
-            path_to_lanelet = os.path.join(args.path, args.dataset, "maps", "lanelets", location)
-            osm_file = os.listdir(path_to_lanelet)[0]
-            lanelet_path = os.path.join(path_to_lanelet, osm_file)
-
-            lane_graph = get_lanelet_graph(rec_meta, lanelet_path, p0[0], p0[1], return_torch=True)
-
-            # Perform some initial renaming
-            if "vx" not in tracks.columns:
-                tracks.rename(columns={"xVelocity": "vx"}, inplace=True)
-                tracks.rename(columns={"yVelocity": "vy"}, inplace=True)
-                tracks.rename(columns={"xAcceleration": "ax"}, inplace=True)
-                tracks.rename(columns={"yAcceleration": "ay"}, inplace=True)
-            if "psi" not in tracks.columns:
-                tracks.rename(columns={"heading": "psi"}, inplace=True)
-                # convert all psi values to radians and wrap to pi
-                radians = np.deg2rad(tracks.psi)
-                tracks.psi = np.arctan2(np.sin(radians), np.cos(radians))
-            if "x" not in tracks.columns:
-                tracks.rename(columns={"xCenter": "x"}, inplace=True)
-                tracks.rename(columns={"yCenter": "y"}, inplace=True)
-                tracks.x = tracks.x - p0[0]
-                tracks.y = tracks.y - p0[1]
-
-            # Make class lowercase in tracks_meta
-            tracks_meta["class"] = tracks_meta["class"].str.lower()
-
-            # Determine train, val, test split (by frames)
-            train_frames, val_frames, test_frames = \
-                get_frame_split(tracks_meta.finalFrame.array[-1], seed=random_seed)
-            frame_dict = {"train": train_frames, "val": val_frames, "test": test_frames}
-
-            shared_args = (r_id, output_dir, frame_dict, tracks_meta, tracks, lane_graph)
-
-            tasks = [("train",) + shared_args, ("val",) + shared_args, ("test",) + shared_args]
+            tasks = [
+                ('train',) + shared_args,
+                ('val',) + shared_args,
+                ('test',) + shared_args
+            ]
 
             # Erase preprocessing message
             erase_previous_line()

@@ -10,4 +10,5 @@ tqdm
 utm
 osmium
 networkx
+pyproj
 pytest

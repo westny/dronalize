@@ -1,0 +1,296 @@
+# Description: Configuration file for the SIND dataset
+description: Full SIND dataset
+
+dataset: SIND
+full: true
+seed: 42
+sample_freq: 10 # Hz
+downsample: 2
+skip_samples: 25
+input_len: 3 # seconds
+output_len: 5 # seconds
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings:
+  6_22_NR_1:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_22_NR_2:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_22_NR_3:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_22_NR_4:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_24_NR_1:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_24_NR_2:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_29_NR_1:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_29_NR_2:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_29_NR_3:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  6_29_NR_4:
+    include: true
+    location: NR_ll2
+    x0: 1.233381437782229
+    y0: 18.28041250344582
+  '7_28_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_10_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_10_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_11_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_2_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_3_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_3_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_3_3':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_3_4':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_5_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_5_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_5_3':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_6_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_6_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_6_3':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_6_4':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_7_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_7_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_8_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_9_1':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_9_2':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_9_3':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  '8_9_4':
+    include: true
+    location: map_relink_law_save
+    x0: 14.440424123195754
+    y0: 16.361845025734446
+  changchun_pudong_507_009:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_507_010:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_507_011:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_523_005:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_523_006:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_523_007:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_523_008:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  changchun_pudong_xx:
+    include: true
+    location: Changchun_Pudong
+    x0: -21.268897249920393
+    y0: -3.2339395438639222
+  xian_412_m1:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_m2:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_m3:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_m4:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_n1:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_n2:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_n3:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_412_n4:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_m1:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_m2:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_m3:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_m4:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_n1:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_n2:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057
+  xian_415_n4:
+    include: true
+    location: Xi'an_Shanglin
+    x0: -7.730162271042199
+    y0: 29.27662104643057

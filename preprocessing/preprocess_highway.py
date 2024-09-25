@@ -16,7 +16,7 @@ import math
 import os
 import sys
 import time
-import json
+import yaml
 import pickle
 import warnings
 from typing import Any
@@ -28,8 +28,8 @@ import numpy as np
 from tqdm import tqdm
 
 from preprocessing.arguments import args
-from preprocessing.utils.highway_graph import get_highway_graph
-from preprocessing.utils.highway_utils import *
+from preprocessing.utils.highway_utils import preprocess_highd, preprocess_isac
+from preprocessing.utils.exit_utils import preprocess_exid
 from preprocessing.utils.common import *
 
 worker_counter: Any
@@ -51,6 +51,7 @@ def process_id(id0: int,
                n_inputs: int = 7,
                n_outputs: int = 7,
                ds_factor: int = 5,
+               filt_ord: int = 7,
                skip: int = 12,
                debug: bool = False,
                ) -> None:
@@ -70,6 +71,7 @@ def process_id(id0: int,
     :param n_inputs: The number of input features
     :param n_outputs: The number of output features
     :param ds_factor: The down-sampling factor
+    :param filt_ord: The filter order
     :param skip: The number of frames to skip
     :param dataset: The dataset name
     :param debug: Debug mode
@@ -152,8 +154,10 @@ def process_id(id0: int,
 
         # Down-sample the data
         if ds_factor > 1:
-            input_array = decimate_nan(input_array, pad_order='front', ds_factor=ds_factor, fz=fz)
-            target_array = decimate_nan(target_array, pad_order='back', ds_factor=ds_factor, fz=fz)
+            input_array = decimate_nan(input_array, pad_order='front',
+                                       ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
+            target_array = decimate_nan(target_array, pad_order='back',
+                                        ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
 
         # Convert to tensors
         input_tensor = torch.from_numpy(input_array).float()
@@ -185,11 +189,10 @@ def process_id(id0: int,
                  'input_mask': input_mask,
                  'valid_mask': valid_mask,
                  'sa_mask': sa_mask,
-                 'ma_mask': ma_mask}
+                 'ma_mask': ma_mask
+                 }
 
         data: dict[str, Any] = {'rec_id': rec_id, 'agent': agent}
-        # data['x_min'] = None
-        # data['x_max'] = None
         data.update(ln_graph['upper_map'] if driving_dir == 1 else ln_graph['lower_map'])
 
         if not debug:
@@ -228,15 +231,16 @@ def process_ids(current_set: str,
     n_inputs = config["n_inputs"]
     n_outputs = config["n_outputs"]
     ds_factor = config["downsample"]
+    filt_ord = 2 if ds.lower() == 'a43' else 7
     skip_lc = config["skip_lc_samples"]
     skip_lk = config["skip_lk_samples"]
 
     debug = args.debug
 
     outer_lc_args = (ds, fz, input_len, output_len, n_inputs,
-                     n_outputs, ds_factor, skip_lc, debug)
+                     n_outputs, ds_factor, filt_ord, skip_lc, debug)
     outer_lk_args = (ds, fz, input_len, output_len, n_inputs,
-                     n_outputs, ds_factor, skip_lk, debug)
+                     n_outputs, ds_factor, filt_ord, skip_lk, debug)
 
     # Check if there are any saved samples in the current set directory
     set_dir = f"{output_dir}/{current_set}"
@@ -250,14 +254,13 @@ def process_ids(current_set: str,
     save_id_counter = Value('i', save_id)
     save_lock = Lock()
 
-    ta_ids = list(tr_meta[tr_meta['class'].isin(['car', 'truck'])].trackId)
+    ta_ids = list(tr.trackId.unique())
+
     frame_range = fr_dict[current_set]
-    ta_set = {ta_id for ta_id in ta_ids
-              if any(tr[tr.trackId == ta_id].frame.isin(frame_range))}
+    ta_set = {ta_id for ta_id in ta_ids if any(tr[tr.trackId == ta_id].frame.isin(frame_range))}
 
     # Get the ids of all the TAs that perform lane changes
-    lc_ta_ids = {ta_id for ta_id in ta_set
-                 if int(tr_meta[tr_meta.trackId == ta_id].numLaneChanges.iloc[0]) > 0}
+    lc_ta_ids = {ta_id for ta_id in ta_set if int(tr_meta[tr_meta.trackId == ta_id].numLaneChanges.iloc[0]) > 0}
 
     # Compute the ids of all the TAs that perform lane keeping
     lk_ta_ids = ta_set - lc_ta_ids
@@ -278,8 +281,8 @@ def process_ids(current_set: str,
 
     arguments = lc_arguments + lk_arguments
 
+    n_workers = 1
     if args.use_threads:
-        n_workers = 1
         cpu_count = os.cpu_count()
         if cpu_count is None:
             warnings.warn("Could not determine the number of CPU cores. Using 1 thread.")
@@ -288,15 +291,12 @@ def process_ids(current_set: str,
         else:
             n_workers = cpu_count
 
-        with Pool(n_workers, initializer=init_worker,
-                  initargs=(save_id_counter, save_lock)) as pool:
-            with tqdm(total=len(arguments), desc=f"{current_set.capitalize()}",
-                      position=1, leave=False) as pbar:
-                for _ in pool.imap_unordered(worker_function, arguments):
-                    pbar.update()
-    else:
-        for arg in tqdm(arguments, desc=f"{current_set.capitalize()}", position=1, leave=False):
-            process_id(*arg)
+    with Pool(n_workers, initializer=init_worker,
+              initargs=(save_id_counter, save_lock)) as pool:
+        with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
+                  position=1, leave=False) as pbar:
+            for _ in pool.imap_unordered(worker_function, arguments):
+                pbar.update()
 
 
 def init_worker(counter, lock):
@@ -310,86 +310,58 @@ def worker_function(arg: tuple) -> None:
     return process_id(*arg)
 
 
-def erase_previous_line(double_jump: bool = False):
-    """Erase the previous line in the terminal."""
-    sys.stdout.write('\x1b[1A')  # Move the cursor up one line
-    sys.stdout.write('\x1b[2K')  # Clear the entire line
-    if double_jump:
-        sys.stdout.write('\x1b[1A')
-
-
 if __name__ == "__main__":
     if args.debug:
         print("DEBUG MODE: ON \n")
 
-    # worker_counter: Any
-    # worker_lock: Any
+    config_file = args.config
+    if not config_file.endswith(".yml"):
+        config_file += ".yml"
 
-    output_dir = create_directories(args)
+    config_file_pth = os.path.join("preprocessing", "configs", config_file)
+
+    assert os.path.exists(config_file_pth), f"Config file {config_file} not found."
+
+    print(f"Using config file: {config_file} \n")
+
+    with open(config_file_pth, "r", encoding="utf-8") as conf_file:
+        config = yaml.safe_load(conf_file)
+
+    dataset = config["dataset"]
+
+    output_dir = create_directories(args, dataset)
     print(f"Output directory: {output_dir} \n")
-
-    with open("preprocessing/configs/" + args.dataset + ".json",
-              "r", encoding="utf-8") as conf_file:
-        config = json.load(conf_file)
 
     random_seed = config["seed"]
     np.random.seed(random_seed)
 
-    rec_ids = [f"{i:02}" for i in range(1, 60 + 1)]
+    rec_ids = []
+    recordings = config["recordings"]
+    for key, value in recordings.items():
+        if value["include"]:
+            rec_ids.append(key)
+
+    if dataset == "exiD":
+        temp_path = os.path.join(args.path, dataset, "maps")
+        dirs = os.listdir(temp_path)
+
+        # check if lanelet directory is named "lanelet" instead of "lanelets"
+        if "lanelet2" in dirs:
+            # update name in directory for consistency
+            os.rename(os.path.join(temp_path, "lanelet2"), os.path.join(temp_path, "lanelets"))
 
     try:
         for r_id in tqdm(rec_ids, desc="Main process: ", position=0, leave=True):
             print(f"Preprocessing started for recording {r_id}...")
 
-            # Construct the base directory path for your data
-            base_dir = os.path.join(args.path, args.dataset, "data")
-
-            # Use os.path.join for each specific file
-            rec_meta_path = os.path.join(base_dir, f"{r_id}_recordingMeta.csv")
-            tracks_meta_path = os.path.join(base_dir, f"{r_id}_tracksMeta.csv")
-            tracks_path = os.path.join(base_dir, f"{r_id}_tracks.csv")
-
-            # Read the CSV files
-            rec_meta = pd.read_csv(rec_meta_path)
-            tracks_meta = pd.read_csv(tracks_meta_path)
-            tracks = pd.read_csv(tracks_path)
-
-            # For the lanelet file, construct the path similarly
-            upper_map, lower_map, x_min, x_max = \
-                get_highway_graph(rec_meta, tracks,
-                                  spacing=config["lane_graph"]["spacing"],
-                                  buffer=config["lane_graph"]["buffer"])
-            lane_graph = {'upper_map': upper_map, 'lower_map': lower_map}
-
-            # Perform some initial renaming
-            if 'trackId' not in tracks_meta.columns:
-                tracks_meta.rename(columns={'id': 'trackId'}, inplace=True)
-                tracks.rename(columns={'id': 'trackId'}, inplace=True)
-            if 'vx' not in tracks.columns:
-                tracks.rename(columns={'xVelocity': 'vx'}, inplace=True)
-                tracks.rename(columns={'yVelocity': 'vy'}, inplace=True)
-                tracks.rename(columns={'xAcceleration': 'ax'}, inplace=True)
-                tracks.rename(columns={'yAcceleration': 'ay'}, inplace=True)
-            if "x" not in tracks.columns:
-                tracks.rename(columns={'xCenter': 'x'}, inplace=True)
-                tracks.rename(columns={'yCenter': 'y'}, inplace=True)
-
-            # Make class lowercase in tracks_meta
-            tracks_meta['class'] = tracks_meta['class'].str.lower()
-
-            tracks = align_origin_w_centroid(tracks_meta, tracks, debug=args.debug)
-            tracks = add_driving_direction(tracks_meta, tracks)
-            tracks = add_maneuver(tracks_meta, tracks, debug=args.debug)
-            tracks = update_signs(rec_meta, tracks_meta, tracks, debug=args.debug)
-            tracks = add_heading_feat(tracks, debug=args.debug)
-
-            # Determine train, val, test split (by frames)
-            train_frames, val_frames, test_frames = \
-                get_frame_split(tracks_meta.finalFrame.array[-1],
-                                seed=random_seed)
-            frame_dict = {'train': train_frames, 'val': val_frames, 'test': test_frames}
-
-            shared_args = (r_id, output_dir, frame_dict, tracks_meta, tracks, lane_graph)
+            if dataset.lower() == "highd":
+                shared_args = preprocess_highd(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+            elif dataset.lower() == "exid":
+                shared_args = preprocess_exid(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+            elif dataset.lower() == "a43":
+                shared_args = preprocess_isac(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+            else:
+                raise ValueError(f"Unknown dataset: {dataset}")
 
             tasks = [
                 ('train',) + shared_args,

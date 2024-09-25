@@ -66,7 +66,6 @@ class MinBrier(Metric):
             pred = pred[scored_agents]
             trg = trg[scored_agents]
             prob = prob[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             pred = pred[:, -1]  # (N, 2)
             trg = trg[:, -1]  # (N, 2)
@@ -77,10 +76,10 @@ class MinBrier(Metric):
         brier = (1.0 - prob) * torch.linalg.norm(pred - trg, dim=-1)  # (N,)
 
         self.sum += brier.sum()
-        self.count += batch_size
+        self.count += brier.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

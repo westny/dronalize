@@ -1,0 +1,20 @@
+--find-links https://data.pyg.org/whl/torch-2.2.0+cpu.html
+# --find-links https://data.pyg.org/whl/torch-2.2.0+cu121.html
+
+torch==2.2.*
+numpy==1.26.*
+torch_geometric
+pyg_lib
+torch_scatter
+torch_cluster
+lightning
+torchmetrics
+pandas
+scikit-learn
+matplotlib
+tqdm
+utm
+osmium
+networkx
+pytest
+pyproj

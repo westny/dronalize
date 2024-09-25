@@ -25,11 +25,23 @@ from scipy.signal import decimate
 from sklearn.model_selection import train_test_split
 
 
-def create_directories(args: Namespace) -> str:
-    """Create directories for processed data."""
+def erase_previous_line(double_jump: bool = False):
+    """Erase the previous line in the terminal."""
+    sys.stdout.write("\x1b[1A")  # Move the cursor up one line
+    sys.stdout.write("\x1b[2K")  # Clear the entire line
+    if double_jump:
+        sys.stdout.write("\x1b[1A")
 
-    data_dir = args.dataset + args.add_name
-    output_dir = args.output_dir + "/" + data_dir
+
+def create_directories(args: Namespace, dataset: Optional[str] = None):
+    """Create directories for processed data."""
+    if dataset is None:
+        data_dir = args.dataset + args.add_name
+    else:
+        data_dir = dataset + args.add_name
+
+    output_dir = os.path.join(args.output_dir, data_dir)
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     elif args.debug:
@@ -61,7 +73,7 @@ def create_directories(args: Namespace) -> str:
     return output_dir
 
 
-def get_frame_split(n_frames: int, seed: int = 42) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def get_frame_split(n_frames: int, seed: int = 42, test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Split the frames into train, validation, and test sets."""
 
     all_frames = list(range(1, n_frames + 1))
@@ -70,7 +82,7 @@ def get_frame_split(n_frames: int, seed: int = 42) -> tuple[np.ndarray, np.ndarr
     frame_lists = np.array_split(all_frames, 10)
 
     # Split the lists into train (80%), validation (10%), and test (10%) sets
-    train, valtest = train_test_split(frame_lists, test_size=0.2, random_state=seed)
+    train, valtest = train_test_split(frame_lists, test_size=test_size, random_state=seed)
     val, test = train_test_split(valtest, test_size=0.5, random_state=seed)
 
     # Sort the order of the arrays in the list and concatenate them
@@ -112,7 +124,8 @@ def class_list_to_int_list(class_list: list[str]) -> list[int]:
         'motorcycle': 3,
         'bicycle': 4,
         'pedestrian': 5,
-        'animal': 6,
+        'tricycle': 6,
+        'animal': 7,
     }
     return [class_to_int[c] for c in class_list]
 
@@ -174,7 +187,7 @@ def get_features(df: DataFrame,
     """
 
     return_array = np.empty((frame_end - frame_start + 1, n_features))
-    return_array[:] = np.NaN
+    return_array[:] = np.nan
 
     if track_id != -1:
         dfx = df[(df.frame >= frame_start) & (df.frame <= frame_end) & (df.trackId == track_id)]
@@ -220,10 +233,10 @@ def decimate_nan(x: np.ndarray,
         # pad the array with NaNs to the target length along the first axis
         if pad_order == 'front':
             n_pad = ((target_ds_len - arr.shape[0], 0), (0, 0))
-            arr = np.pad(arr, n_pad, mode='constant', constant_values=np.NaN)
+            arr = np.pad(arr, n_pad, mode='constant', constant_values=np.nan)
         elif pad_order == 'back':
             n_pad = ((0, target_ds_len - arr.shape[0]), (0, 0))
-            arr = np.pad(arr, n_pad, mode='constant', constant_values=np.NaN)
+            arr = np.pad(arr, n_pad, mode='constant', constant_values=np.nan)
         else:
             raise ValueError("pad_order should be either 'front' or 'back'")
 

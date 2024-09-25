@@ -1,0 +1,135 @@
+# Description: Configuration file for the rounD dataset
+description: rounD dataset
+
+dataset: rounD
+seed: 42
+sample_freq: 25
+downsample: 5
+skip_samples: 12
+input_len: 3
+output_len: 5
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings:
+  '00':
+    include: true
+    location: 1_kackertstrasse
+    x0: 115.51669730710512
+    y0: -70.6429033531912
+  '01':
+    include: true
+    location: 2_thiergarten
+    x0: 137.8338032894461
+    y0: -61.07768929146573
+  '02':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '03':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '04':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '05':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '06':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '07':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  08:
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  09:
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '10':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '11':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '12':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '13':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '14':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '15':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '16':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '17':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '18':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '19':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '20':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '21':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '22':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365
+  '23':
+    include: true
+    location: 0_neuweiler
+    x0: 80.97640635242064
+    y0: -46.93989929086365

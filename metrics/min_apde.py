@@ -62,7 +62,6 @@ class MinAPDE(Metric):
             scored_agents = num_valid_steps > 0
             path_dist = path_dist[scored_agents]
             num_valid_steps = num_valid_steps[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             path_dist, _ = cdist.min(dim=-1)  # (N, T)
             num_valid_steps = torch.ones_like(path_dist).sum(-1)  # (N,)
@@ -70,10 +69,10 @@ class MinAPDE(Metric):
         apde = path_dist.sum(-1) / num_valid_steps  # (N,)
 
         self.sum += apde.sum()
-        self.count += batch_size
+        self.count += apde.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

@@ -56,16 +56,15 @@ class MinADE(Metric):
             norm = norm * mask  # (N, T)
             norm = norm[scored_agents]
             num_valid_steps = num_valid_steps[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             num_valid_steps = torch.ones_like(norm).sum(dim=-1)  # (N,)
 
         ade = norm.sum(dim=-1) / num_valid_steps  # (N,)
         self.sum += ade.sum()
-        self.count += batch_size
+        self.count += ade.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

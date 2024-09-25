@@ -27,14 +27,17 @@ from lightning.pytorch import LightningDataModule
 from torch_geometric.utils import subgraph
 from torch_geometric.data import Dataset
 from torch_geometric.loader import DataLoader
+import torch_geometric.transforms as pyg_tf
+
 from datamodules.dataset import DroneDataset
-from datamodules.transforms import CoordinateShift
+from utils import import_from_module
 
 
 class DroneDataModule(LightningDataModule):
     train: Dataset = None
     val: Dataset = None
     test: Dataset = None
+    transform = None
 
     def __init__(self,
                  config: dict,
@@ -43,7 +46,13 @@ class DroneDataModule(LightningDataModule):
         self.root = config["root"]
         self.dataset = config["name"]
         self.batch_size = config["batch_size"]
-        self.transform = CoordinateShift()
+        if config["transform"] is not None:
+            if isinstance(config["transform"], list):
+                self.transform = pyg_tf.Compose([import_from_module("datamodules.transforms",
+                                                                    t)() for t in config["transform"]])
+            else:
+                self.transform = import_from_module("datamodules.transforms",
+                                                    config["transform"])()
 
         self.small_data = args.small_ds
         self.num_workers = args.num_workers
@@ -55,7 +64,7 @@ class DroneDataModule(LightningDataModule):
                                   transform=self.transform, small_data=self.small_data)
         self.val = DroneDataset(root=self.root, dataset=self.dataset, split='val',
                                 transform=self.transform, small_data=self.small_data)
-        self.test = DroneDataset(root=self.root, dataset=self.dataset, split='test',
+        self.test = DroneDataset(root=self.root, dataset=self.dataset, split='val',
                                  transform=self.transform, small_data=self.small_data)
 
     def train_dataloader(self) -> DataLoader:
@@ -158,6 +167,7 @@ if __name__ == "__main__":
     ax.set_aspect('equal')
     ax.set_xlim(-50, 200)
     ax.set_ylim(-30, 35)
+
     plt.axis('off')
     plt.tight_layout()
     plt.show()

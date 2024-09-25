@@ -1,0 +1,180 @@
+# Description: Configuration file for the inD dataset
+description: inD dataset
+
+dataset: inD
+seed: 42
+sample_freq: 25 # Hz
+downsample: 5
+skip_samples: 25
+input_len: 3 # seconds
+output_len: 5 # seconds
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings:
+  '00':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '01':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '02':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '03':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '04':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '05':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '06':
+    include: true
+    location: 04_aseag
+    x0: 143.255269808385
+    y0: -57.91170481615564
+  '07':
+    include: true
+    location: 01_bendplatz
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  08:
+    include: true
+    location: 01_bendplatz
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  09:
+    include: true
+    location: 01_bendplatz
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '10':
+    include: true
+    location: 01_bendplatz
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '11':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '12':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '13':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '14':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '15':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '16':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '17':
+    include: true
+    location: 01_bendplatz_construction
+    x0: 55.72110867398384
+    y0: -32.74837088734138
+  '18':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '19':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '20':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '21':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '22':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '23':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '24':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '25':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '26':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '27':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '28':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '29':
+    include: true
+    location: 02_frankenburg
+    x0: 47.4118205383659
+    y0: -28.8381176470473
+  '30':
+    include: true
+    location: 03_heckstrasse
+    x0: 40.080060675120016
+    y0: -25.416623842759034
+  '31':
+    include: true
+    location: 03_heckstrasse
+    x0: 40.080060675120016
+    y0: -25.416623842759034
+  '32':
+    include: true
+    location: 03_heckstrasse
+    x0: 40.080060675120016
+    y0: -25.416623842759034

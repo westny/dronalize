@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import numpy as np
-from pandas import DataFrame, unique
+from pandas import DataFrame, unique, isna, read_csv
 
 
 def align_origin_w_centroid(tracks_meta: DataFrame,
-                            tracks: DataFrame, debug: bool = False) -> DataFrame:
+                            tracks: DataFrame,
+                            debug: bool = False) -> DataFrame:
     """
     The coordinates are given wrt the upper left corner of the bounding box
     this function modifies the dataframe such that the coordinates are align
@@ -26,35 +28,47 @@ def align_origin_w_centroid(tracks_meta: DataFrame,
     if debug:
         return tracks
 
-    ids = tracks_meta.trackId
-    driving_dirs = tracks_meta.drivingDirection
-    for i, dd in zip(ids, driving_dirs):
-        tracks.loc[tracks.trackId == i, 'y'] += tracks.loc[tracks.trackId == i, 'height'] / 2
-        if dd == 2:
-            tracks.loc[tracks.trackId == i, 'x'] += tracks.loc[tracks.trackId == i, 'width'] / 2
-    return tracks
+    # Nested function to process each group (i.e., each trackId)
+    def process_group(df):
+        t_id = df['trackId'].iloc[0]
+        driving_direction = tracks_meta[tracks_meta.trackId == t_id].drivingDirection.values[0]
+
+        # Update y-coordinate by adding half of the height
+        df['y'] += df['height'] / 2
+
+        # If driving direction is 2, update the x-coordinate by adding half of the width
+        if driving_direction == 2:
+            df['x'] += df['width'] / 2
+
+        return df
+
+    # Group by trackId and apply the processing function to each group
+    result_df = tracks.groupby('trackId').apply(process_group)
+
+    # Reset index to maintain DataFrame structure
+    result_df = result_df.reset_index(drop=True)
+
+    return result_df
 
 
 def add_heading_feat(tracks: DataFrame, debug: bool = False) -> DataFrame:
     """
     Add heading as a feature to the tracks dataframe
     """
-    tracks['psi'] = np.empty(len(tracks))
+    tracks['psi'] = 0.
 
     if debug:
         return tracks
 
-    t_ids = unique(tracks.trackId)
-    for t_id in t_ids:
-        vy = tracks.loc[tracks.trackId == t_id, 'vy'].to_numpy()
-        vx = tracks.loc[tracks.trackId == t_id, 'vx'].to_numpy()
-        psi = np.arctan2(vy, vx)
-        tracks.loc[tracks['trackId'] == t_id, ['psi']] = psi
+    tracks['psi'] = np.arctan2(tracks['vy'], tracks['vx'])
+
     return tracks
 
 
-def add_maneuver(tracks_meta: DataFrame, tracks: DataFrame,
-                 fz: int = 25, debug: bool = False) -> DataFrame:
+def add_maneuver(tracks_meta: DataFrame,
+                 tracks: DataFrame,
+                 fz: int = 25,
+                 debug: bool = False) -> DataFrame:
     """
     Add maneuver as a feature to the tracks dataframe.
 
@@ -71,63 +85,87 @@ def add_maneuver(tracks_meta: DataFrame, tracks: DataFrame,
     lane_change_left = [0, 1, 2]
     lane_change_right = [4, 5, 6]
 
-    tracks['maneuver'] = np.ones(len(tracks), dtype=int) * 3
+    tracks['maneuver'] = np.ones(len(tracks), dtype=int) * 3  # Initialize with 'no lane change'
 
     if debug:
         return tracks
 
-    t_ids = unique(tracks.trackId)
-    for t_id in t_ids:
-        if int(tracks_meta[tracks_meta.trackId == t_id].numLaneChanges.iloc[0]) > 0:
-            df = tracks[tracks.trackId == t_id]
-            dr_dir = df.drivingDirection.values[0]
-            frames = df.frame.to_numpy()
-            lanes = df.laneId.to_numpy()
-            event_indices = [i for i in range(1, len(lanes)) if lanes[i] != lanes[i - 1]]
+    # Nested function to process each trackId group
+    def process_group(df):
+        t_id = df['trackId'].iloc[0]
+        num_lane_changes = int(tracks_meta[tracks_meta.trackId == t_id].numLaneChanges.iloc[0])
 
-            for event_index in event_indices:
-                five_seconds_prior = range(max(0, event_index - 5 * fz + 1), event_index)
-                three_seconds_prior = range(max(0, event_index - 3 * fz + 1), event_index)
-                one_second_prior = range(max(0, event_index - fz + 1), event_index)
+        if num_lane_changes == 0:
+            # No lane changes, return the group as is with 'maneuver' already set to 3
+            return df
 
-                five_second_frames = (frames[i] for i in five_seconds_prior)
-                three_second_frames = (frames[i] for i in three_seconds_prior)
-                one_second_frames = (frames[i] for i in one_second_prior)
+        dr_dir = df.drivingDirection.values[0]
+        frames = df.frame.to_numpy()
+        lanes = df.laneId.to_numpy()
 
-                delta_lane = lanes[event_index] - lanes[event_index - 1]
-                if dr_dir == 1:
-                    # Traveling from right to left. Lane index increases
-                    maneuvers = lane_change_left if delta_lane > 0 else lane_change_right
-                else:
-                    # Traveling from left to right. Lane index increases
-                    maneuvers = lane_change_right if delta_lane > 0 else lane_change_left
+        event_indices = [i for i in range(1, len(lanes)) if lanes[i] != lanes[i - 1]]
 
-                tracks.loc[(tracks['trackId'] == t_id) &
-                           (tracks['frame'].isin(five_second_frames)), ['maneuver']] = maneuvers[2]
-                tracks.loc[(tracks['trackId'] == t_id) &
-                           (tracks['frame'].isin(three_second_frames)), ['maneuver']] = maneuvers[1]
-                tracks.loc[(tracks['trackId'] == t_id) &
-                           (tracks['frame'].isin(one_second_frames)), ['maneuver']] = maneuvers[0]
+        for event_index in event_indices:
+            five_seconds_prior = range(max(0, event_index - 5 * fz + 1), event_index)
+            three_seconds_prior = range(max(0, event_index - 3 * fz + 1), event_index)
+            one_second_prior = range(max(0, event_index - fz + 1), event_index)
 
-    return tracks
+            five_second_frames = set(frames[i] for i in five_seconds_prior)
+            three_second_frames = set(frames[i] for i in three_seconds_prior)
+            one_second_frames = set(frames[i] for i in one_second_prior)
+
+            delta_lane = lanes[event_index] - lanes[event_index - 1]
+            if dr_dir == 1:
+                maneuvers_type = lane_change_left if delta_lane > 0 else lane_change_right
+            else:
+                maneuvers_type = lane_change_right if delta_lane > 0 else lane_change_left
+
+            df.loc[df.frame.isin(five_second_frames), 'maneuver'] = maneuvers_type[2]
+            df.loc[df.frame.isin(three_second_frames), 'maneuver'] = maneuvers_type[1]
+            df.loc[df.frame.isin(one_second_frames), 'maneuver'] = maneuvers_type[0]
+
+        return df
+
+    # Group by trackId and apply the processing function to each group
+    result_df = tracks.groupby('trackId').apply(process_group)
+
+    # Reset index in case the grouping messes with the original DataFrame's structure
+    result_df = result_df.reset_index(drop=True)
+
+    return result_df
 
 
-def add_driving_direction(tracks_meta: DataFrame, tracks: DataFrame) -> DataFrame:
+def add_driving_direction(tracks_meta: DataFrame,
+                          tracks: DataFrame,
+                          debug: bool = False) -> DataFrame:
     """
     Add driving direction (1 or 2) as a feature to the tracks dataframe.
     If driving direction is 1, the vehicle is driving from right to left (negative x).
     If driving direction is 2, the vehicle is driving from left to right (positive x).
     """
 
-    tracks['drivingDirection'] = np.empty(len(tracks))
-    t_ids = unique(tracks.trackId)
-    for t_id in t_ids:
+    if debug:
+        tracks['drivingDirection'] = 1
+        return tracks
+
+    # Nested function to process each trackId group
+    def process_group(df):
+        t_id = df['trackId'].iloc[0]
         driving_direction = tracks_meta[tracks_meta.trackId == t_id].drivingDirection.values[0]
-        tracks.loc[tracks['trackId'] == t_id, ['drivingDirection']] = driving_direction
-    return tracks
+        df['drivingDirection'] = driving_direction  # Set driving direction for the group
+        return df
+
+    # Group by trackId and apply the processing function to each group
+    result_df = tracks.groupby('trackId').apply(process_group)
+
+    # Reset index in case the grouping affects the original DataFrame structure
+    result_df = result_df.reset_index(drop=True)
+
+    return result_df
 
 
-def add_displacement_feat(rec_meta: DataFrame, tracks_meta: DataFrame,
+def add_displacement_feat(rec_meta: DataFrame,
+                          tracks_meta: DataFrame,
                           tracks: DataFrame,
                           debug: bool = False) -> DataFrame:
     """
@@ -198,7 +236,7 @@ def add_displacement_feat(rec_meta: DataFrame, tracks_meta: DataFrame,
 
 def get_disp_features(df: DataFrame, frame_start: int, frame_end: int, track_id=-1) -> np.ndarray:
     return_array = np.empty((frame_end - frame_start + 1, 2))
-    return_array[:] = np.NaN
+    return_array[:] = np.nan
 
     if track_id != -1:
         dfx = df[(df.frame >= frame_start) & (df.frame <= frame_end) & (df.trackId == track_id)]
@@ -217,8 +255,10 @@ def get_disp_features(df: DataFrame, frame_start: int, frame_end: int, track_id=
     return return_array
 
 
-def update_signs(rec_meta: DataFrame, tracks_meta: DataFrame,
-                 tracks: DataFrame, debug: bool = False) -> DataFrame:
+def update_signs(rec_meta: DataFrame,
+                 tracks_meta: DataFrame,
+                 tracks: DataFrame,
+                 debug: bool = False) -> DataFrame:
     """
     We are looking to unify the coordinate system under a
      FLU (frontward-leftward-upward) coordinate system (ISO standard):
@@ -245,25 +285,221 @@ def update_signs(rec_meta: DataFrame, tracks_meta: DataFrame,
 
     x_max = tracks.x.max()
 
-    t_ids = unique(tracks.trackId)
-    for t_id in t_ids:
+    # Define a function to process each trackId group
+    def process_group(df):
+        t_id = df['trackId'].iloc[0]
         driving_dir = tracks_meta[tracks_meta.trackId == t_id].drivingDirection.values[0]
 
         if driving_dir == 1:
-            tracks.loc[(tracks['trackId'] == t_id), ['y']] = \
-                tracks.loc[(tracks['trackId'] == t_id), ['y']] - ulm[0]
-            tracks.loc[(tracks['trackId'] == t_id), ['x']] = \
-                -tracks.loc[(tracks['trackId'] == t_id), ['x']] + x_max
-            tracks.loc[(tracks['trackId'] == t_id), ['vx']] = \
-                -tracks.loc[(tracks['trackId'] == t_id), ['vx']]
-            tracks.loc[(tracks['trackId'] == t_id), ['ax']] = \
-                -tracks.loc[(tracks['trackId'] == t_id), ['ax']]
+            df['y'] = df['y'] - ulm[0]
+            df['x'] = -df['x'] + x_max
+            df['vx'] = -df['vx']
+            df['ax'] = -df['ax']
         else:
-            tracks.loc[(tracks['trackId'] == t_id), ['y']] = \
-                llm[-1] - tracks.loc[(tracks['trackId'] == t_id), ['y']]
-            tracks.loc[(tracks['trackId'] == t_id), ['vy']] = \
-                -tracks.loc[(tracks['trackId'] == t_id), ['vy']]
-            tracks.loc[(tracks['trackId'] == t_id), ['ay']] = \
-                -tracks.loc[(tracks['trackId'] == t_id), ['ay']]
+            df['y'] = llm[-1] - df['y']
+            df['vy'] = -df['vy']
+            df['ay'] = -df['ay']
 
-    return tracks
+        return df
+
+    # Group by trackId and apply the function to each group
+    result_df = tracks.groupby('trackId').apply(process_group)
+
+    # Reset index to maintain DataFrame structure
+    result_df = result_df.reset_index(drop=True)
+
+    return result_df
+
+
+def lane_assignment(tr: DataFrame,
+                    neg_lanes: int = 0,
+                    num_lanes: int = 4,
+                    lane_width: float = 3.75):
+
+    # Function to apply the ffill or bfill logic based on the last value of laneId for each track_id
+    def fill_lane_id(group):
+        # Check if there are any NaNs in the 'laneId' column
+        if group['laneId'].isna().any():
+            # Check if the last value in 'laneId' is NaN
+            if isna(group['laneId'].iloc[-1]):
+                # If the last value is NaN, perform forward fill
+                filled = group.ffill()
+            else:
+                # If the last value is not NaN, perform backward fill
+                filled = group.bfill()
+
+            # Explicitly infer objects to handle dtype conversion
+            return filled.infer_objects(copy=False)
+        else:
+            # No NaNs in this group, return as is
+            return group
+
+    # Get lateral position of each track
+    y = tr['y'].values
+
+    # Handle NaN values
+    mask_valid = ~np.isnan(y)
+
+    # Initialize the result array with None (default for invalid lanes)
+    lane_id = np.full_like(y, None, dtype=object)
+
+    # Calculate the ith_lane using vectorized operations
+    ith_lane = np.ceil(y[mask_valid] / lane_width)
+
+    # Mask for valid lane IDs (within the specified range)
+    valid_mask = (ith_lane >= 1 - neg_lanes) & (ith_lane <= num_lanes - neg_lanes)
+
+    # Assign valid lanes
+    lane_id[mask_valid] = np.where(valid_mask, ith_lane, np.NaN)
+
+    # apply to dataframe
+    tr['laneId'] = lane_id
+
+    # Group by 'track_id' and apply the fill_lane_id function to each group
+    tr['laneId'] = tr.groupby('trackId', group_keys=False).apply(fill_lane_id)['laneId']
+
+    return tr
+
+
+def preprocess_highd(path: str,
+                     rec_id: str,
+                     config: dict,
+                     output_dir: str,
+                     seed: int = 42,
+                     dataset: str = "highD",
+                     debug: bool = False) -> tuple:
+    from preprocessing.utils.highway_graph import get_highway_graph
+    from preprocessing.utils.common import get_frame_split
+
+    # Construct the base directory path for your data
+    base_dir = os.path.join(path, dataset, "data")
+
+    # Use os.path.join for each specific file
+    rec_meta_path = os.path.join(base_dir, f"{rec_id}_recordingMeta.csv")
+    tracks_meta_path = os.path.join(base_dir, f"{rec_id}_tracksMeta.csv")
+    tracks_path = os.path.join(base_dir, f"{rec_id}_tracks.csv")
+
+    # Read the CSV files
+    rec_meta = read_csv(rec_meta_path, engine='pyarrow')
+    tracks_meta = read_csv(tracks_meta_path, engine='pyarrow')
+    tracks = read_csv(tracks_path, engine='pyarrow')
+
+    # For the lanelet file, construct the path similarly
+    upper_map, lower_map, x_min, x_max = \
+        get_highway_graph(rec_meta, tracks,
+                          spacing=config["lane_graph"]["spacing"],
+                          buffer=config["lane_graph"]["buffer"])
+    lane_graph = {'upper_map': upper_map, 'lower_map': lower_map}
+
+    # Perform some initial renaming
+    if 'trackId' not in tracks_meta.columns:
+        tracks_meta.rename(columns={'id': 'trackId'}, inplace=True)
+        tracks.rename(columns={'id': 'trackId'}, inplace=True)
+    if 'vx' not in tracks.columns:
+        tracks.rename(columns={'xVelocity': 'vx'}, inplace=True)
+        tracks.rename(columns={'yVelocity': 'vy'}, inplace=True)
+        tracks.rename(columns={'xAcceleration': 'ax'}, inplace=True)
+        tracks.rename(columns={'yAcceleration': 'ay'}, inplace=True)
+    if "x" not in tracks.columns:
+        tracks.rename(columns={'xCenter': 'x'}, inplace=True)
+        tracks.rename(columns={'yCenter': 'y'}, inplace=True)
+
+    # Make class lowercase in tracks_meta
+    tracks_meta['class'] = tracks_meta['class'].str.lower()
+
+    tracks = align_origin_w_centroid(tracks_meta, tracks, debug=debug)
+    tracks = add_driving_direction(tracks_meta, tracks, debug=debug)
+    tracks = add_maneuver(tracks_meta, tracks, debug=debug)
+    tracks = update_signs(rec_meta, tracks_meta, tracks, debug=debug)
+    tracks = add_heading_feat(tracks, debug=debug)
+
+    # Determine train, val, test split (by frames)
+    train_frames, val_frames, test_frames = \
+        get_frame_split(tracks_meta.finalFrame.array[-1], seed=seed)
+    frame_dict = {'train': train_frames, 'val': val_frames, 'test': test_frames}
+
+    shared_args = (rec_id, output_dir, frame_dict, tracks_meta, tracks, lane_graph)
+
+    return shared_args
+
+
+def preprocess_isac(path: str,
+                    rec_id: str,
+                    config: dict,
+                    output_dir: str,
+                    seed: int = 42,
+                    dataset: str = "A43",
+                    debug: bool = False) -> tuple:
+    from preprocessing.utils.highway_graph import get_highway_graph
+    from preprocessing.utils.common import get_frame_split, get_meta_property
+
+    # Construct the base directory path for your data
+    base_dir = os.path.join(path, dataset)
+
+    # Use os.path.join for each specific file
+    tracks_path = os.path.join(base_dir, rec_id + ".csv")
+
+    # Read the CSV files
+    tracks = read_csv(tracks_path, engine='pyarrow')
+    tracks['x'] = tracks['x'] - tracks['x'].min()
+
+    # round tseconds to nearest 0.1
+    tracks['tseconds'] = np.ceil(tracks['tseconds'] * 10) / 10
+
+    # tracks['frame'] = (tracks['tseconds'] / 0.1).astype(int)
+    tracks['frame'] = ((tracks['tseconds'] / 0.1).round()).astype(int)
+    tracks['frame'] = tracks['frame'] - tracks['frame'].min()
+    final_frame = tracks.frame.max()
+
+    lane_markings = config["recordings"][rec_id]["lane_markings"]
+    y0 = [float(l) for l in list(lane_markings)[0].split(';')][0]
+    tracks['y'] = tracks['y'] - y0
+
+    # Create a data frame for the rec_meta with two columns: 'upperLaneMarkings' and 'lowerLaneMarkings'
+    rec_meta = DataFrame({'upperLaneMarkings': lane_markings, 'lowerLaneMarkings': lane_markings})
+
+    # For the lanelet file, construct the path similarly
+    _, lower_map, x_min, x_max = \
+        get_highway_graph(rec_meta, tracks,
+                          spacing=config["lane_graph"]["spacing"],
+                          buffer=config["lane_graph"]["buffer"])
+    lane_graph = {'upper_map': lower_map, 'lower_map': lower_map}
+
+    # Perform some initial renaming
+    if 'trackId' not in tracks.columns:
+        tracks.rename(columns={'ID': 'trackId'}, inplace=True)
+        tracks['trackId'] = tracks['trackId'] - tracks['trackId'].min()
+    if 'class' not in tracks.columns:
+        tracks.rename(columns={'VehicleCategory': 'class'}, inplace=True)
+
+        # replace class names
+        tracks['class'] = tracks['class'].replace({'Passenger Car': 'car',
+                                                   'Truck': 'truck',
+                                                   'Van': 'van',
+                                                   'Bus': 'bus',
+                                                   'Motorcycle': 'motorcycle',
+                                                   'Semi-trailer truck': 'truck'})
+
+    # Assign lane IDs
+    tracks = lane_assignment(tracks)
+
+    # get the number of lane changes
+    num_lcs = tracks.groupby('trackId').apply(lambda x: x['laneId'].diff().abs().sum()).values.astype(int)
+    classes = get_meta_property(tracks, tracks['trackId'].unique(), prop='class')
+    tracks['drivingDirection'] = 1
+
+    tracks_meta = DataFrame({'trackId': tracks['trackId'].unique(),
+                             "numLaneChanges": num_lcs,
+                             "drivingDirection": 1,
+                             "class": classes})
+
+    tracks = add_maneuver(tracks_meta, tracks, fz=10, debug=debug)
+    tracks = add_heading_feat(tracks, debug=debug)
+
+    # Determine train, val, test split (by frames)
+    train_frames, val_frames, test_frames = get_frame_split(final_frame, seed=seed, test_size=0.25)
+    frame_dict = {'train': train_frames, 'val': val_frames, 'test': test_frames}
+
+    shared_args = (rec_id, output_dir, frame_dict, tracks_meta, tracks, lane_graph)
+
+    return shared_args

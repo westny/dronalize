@@ -107,17 +107,16 @@ class NegativeLogLikelihood(Metric):
             scored_agents = valid_time_steps > 0
             neg_log_prob = neg_log_prob[scored_agents]
             valid_time_steps = valid_time_steps[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             valid_time_steps = torch.ones_like(neg_log_prob).sum(-1)  # (N,)
 
         nll = neg_log_prob.sum(-1) / valid_time_steps  # (N,)
 
         self.sum += nll.sum()
-        self.count += batch_size
+        self.count += nll.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

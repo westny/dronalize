@@ -1,0 +1,481 @@
+# Description: Configuration file for the exiD dataset.
+description: Full exiD dataset
+
+dataset: exiD
+seed: 42
+sample_freq: 25
+downsample: 5
+input_len: 2
+output_len: 5
+n_inputs: 7
+n_outputs: 7
+skip_lc_samples: 12
+skip_lk_samples: 25
+
+# Recordings
+recordings:
+  '00':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '01':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '02':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '03':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '04':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '05':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '06':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '07':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  08:
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  09:
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '10':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '11':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '12':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '13':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '14':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '15':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '16':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '17':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '18':
+    include: true
+    location: 0_cologne_butzweiler
+    x0: 466.0987481190541
+    y0: -314.99787362343494
+  '19':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '20':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '21':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '22':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '23':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '24':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '25':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '26':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '27':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '28':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '29':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '30':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '31':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '32':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '33':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '34':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '35':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '36':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '37':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '38':
+    include: true
+    location: 1_cologne_fortiib
+    x0: 448.3362571068548
+    y0: -246.7666407119179
+  '39':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '40':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '41':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '42':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '43':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '44':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '45':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '46':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '47':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '48':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '49':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '50':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '51':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '52':
+    include: true
+    location: 2_aachen_brand
+    x0: 684.9201058976957
+    y0: -390.9596814245206
+  '53':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '54':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '55':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '56':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '57':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '58':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '59':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '60':
+    include: true
+    location: 3_bergheim_roemer
+    x0: 328.98825273049135
+    y0: -180.17112778485642
+  '61':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '62':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '63':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '64':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '65':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '66':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '67':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '68':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '69':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '70':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '71':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '72':
+    include: true
+    location: 4_cologne_klettenberg
+    x0: 365.72208900700343
+    y0: -188.63735072844517
+  '73':
+    include: true
+    location: 5_aachen_laurensberg
+    x0: 381.2469327032086
+    y0: -214.13952159553511
+  '74':
+    include: true
+    location: 5_aachen_laurensberg
+    x0: 381.2469327032086
+    y0: -214.13952159553511
+  '75':
+    include: true
+    location: 5_aachen_laurensberg
+    x0: 381.2469327032086
+    y0: -214.13952159553511
+  '76':
+    include: true
+    location: 5_aachen_laurensberg
+    x0: 381.2469327032086
+    y0: -214.13952159553511
+  '77':
+    include: true
+    location: 5_aachen_laurensberg
+    x0: 381.2469327032086
+    y0: -214.13952159553511
+  '78':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '79':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '80':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '81':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '82':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '83':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '84':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '85':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '86':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '87':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '88':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '89':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '90':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '91':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674
+  '92':
+    include: true
+    location: 6_merzenich_rather
+    x0: 389.2208669094605
+    y0: -198.87206508462674

@@ -1,0 +1,321 @@
+# Description: Configuration file for the highD dataset
+description: highD dataset
+
+dataset: highD
+seed: 42
+sample_freq: 25
+downsample: 5
+input_len: 2
+output_len: 5
+n_inputs: 7
+n_outputs: 7
+skip_lc_samples: 12
+skip_lk_samples: 25
+
+# Graph
+lane_graph:
+  buffer: 2.0
+  spacing: 10.0
+
+# Recordings
+recordings:
+  '01':
+    include: true
+    location: 2
+    x0: 0
+    y0: 0
+  '02':
+    include: true
+    location: 2
+    x0: 0
+    y0: 0
+  '03':
+    include: true
+    location: 2
+    x0: 0
+    y0: 0
+  '04':
+    include: true
+    location: 3
+    x0: 0
+    y0: 0
+  '05':
+    include: true
+    location: 3
+    x0: 0
+    y0: 0
+  '06':
+    include: true
+    location: 3
+    x0: 0
+    y0: 0
+  '07':
+    include: true
+    location: 4
+    x0: 0
+    y0: 0
+  08:
+    include: true
+    location: 4
+    x0: 0
+    y0: 0
+  09:
+    include: true
+    location: 4
+    x0: 0
+    y0: 0
+  '10':
+    include: true
+    location: 4
+    x0: 0
+    y0: 0
+  '11':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '12':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '13':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '14':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '15':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '16':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '17':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '18':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '19':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '20':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '21':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '22':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '23':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '24':
+    include: true
+    location: 5
+    x0: 0
+    y0: 0
+  '25':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '26':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '27':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '28':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '29':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '30':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '31':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '32':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '33':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '34':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '35':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '36':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '37':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '38':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '39':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '40':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '41':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '42':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '43':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '44':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '45':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '46':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '47':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '48':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '49':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '50':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '51':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '52':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '53':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '54':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '55':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '56':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '57':
+    include: true
+    location: 1
+    x0: 0
+    y0: 0
+  '58':
+    include: true
+    location: 6
+    x0: 0
+    y0: 0
+  '59':
+    include: true
+    location: 6
+    x0: 0
+    y0: 0
+  '60':
+    include: true
+    location: 6
+    x0: 0
+    y0: 0

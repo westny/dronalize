@@ -26,6 +26,7 @@ class CoordinateTransform(BaseTransform):
     def __call__(self, data: HeteroData) -> HeteroData:
         hist_pos = data['agent']['inp_pos']
         hist_vel = data['agent']['inp_vel']
+        hist_acc = data['agent']['inp_acc']
         hist_ori = data['agent']['inp_yaw']
 
         fut_pos = data['agent']['trg_pos']
@@ -44,14 +45,13 @@ class CoordinateTransform(BaseTransform):
 
         rot_mat_t = torch.tensor([[torch.cos(ori), -torch.sin(ori)],
                                   [torch.sin(ori), torch.cos(ori)]])
-        # rot_mat_t = torch.tensor([[torch.cos(ori), torch.sin(ori)],
-        # [-torch.sin(ori), torch.cos(ori)]])
 
         hist_mask = hist_pos != 0
         fut_mask = fut_pos != 0
 
         n_hist_pos = (hist_pos - origin) @ rot_mat_t * hist_mask
         n_hist_vel = hist_vel @ rot_mat_t * hist_mask
+        n_hist_acc = hist_acc @ rot_mat_t * hist_mask
         n_hist_ori = torch.atan2(torch.sin(hist_ori - ori), torch.cos(hist_ori - ori))
 
         n_fut_pos = (fut_pos - origin) @ rot_mat_t * fut_mask
@@ -62,6 +62,7 @@ class CoordinateTransform(BaseTransform):
 
         data['agent']['inp_pos'] = n_hist_pos
         data['agent']['inp_vel'] = n_hist_vel
+        data['agent']['inp_acc'] = n_hist_acc
         data['agent']['inp_yaw'] = n_hist_ori
 
         data['agent']['trg_pos'] = n_fut_pos

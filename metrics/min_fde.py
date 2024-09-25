@@ -59,7 +59,6 @@ class MinFDE(Metric):
             scored_agents = mask.sum(dim=-1) > 0
             pred = pred[scored_agents]
             trg = trg[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             pred = pred[:, -1]  # (N, 2)
             trg = trg[:, -1]  # (N, 2)
@@ -67,10 +66,10 @@ class MinFDE(Metric):
         fde = torch.linalg.norm(pred - trg, dim=-1)  # (N,)
 
         self.sum += fde.sum()
-        self.count += batch_size
+        self.count += fde.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

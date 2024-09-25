@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
+from typing import Optional, cast
 import torch
 from torchmetrics import Metric
 from metrics.utils import filter_prediction
@@ -61,7 +61,6 @@ class MissRate(Metric):
             scored_agents = mask.sum(dim=-1) > 0
             pred = pred[scored_agents]
             trg = trg[scored_agents]
-            batch_size = int(scored_agents.sum().item())
         else:
             pred = pred[:, -1]  # (N, 2)
             trg = trg[:, -1]  # (N, 2)
@@ -71,10 +70,10 @@ class MissRate(Metric):
         mr = norm > miss_threshold  # (N,)
 
         self.sum += mr.sum()
-        self.count += batch_size
+        self.count += mr.size(0)
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore

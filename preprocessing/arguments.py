@@ -33,8 +33,8 @@ parser = ArgumentParser(description='Preprocessing arguments')
 # Program arguments
 parser.add_argument('--path', type=str, default="../datasets",
                     help='path to dataset')
-parser.add_argument('--dataset', type=str, default="rounD",
-                    help='name of dataset')
+parser.add_argument('--config', type=str, default="rounD",
+                    help='name of config file (default: "rounD")')
 parser.add_argument('--output-dir', type=str, default="data",
                     help='output directory for processed data')
 parser.add_argument('--add-name', type=str, default="",

@@ -66,16 +66,16 @@ class CollisionRate(Metric):
             n = scenario.size(0)
 
             # Compute the number of possible collisions
-            self.count += seq_len * comb(n, 2)  # T * (n * (n - 1)) // 2
+            self.count += seq_len * comb(n, 2)  # type: ignore  # T * (n * (n - 1)) // 2
             for t in range(seq_len):
                 dists = torch.cdist(scenario[:, t], scenario[:, t], p=2)  # (n, n)
 
                 # Find the collisions and filter out the self-collisions
                 collisions = (dists < collision_threshold) & (dists != 0.0)
-                self.sum += collisions.sum().item() / 2
+                self.sum += collisions.sum().item() / 2  # type: ignore
 
     def compute(self) -> torch.Tensor:
         """
         Compute the final metric.
         """
-        return self.sum / self.count
+        return self.sum / self.count  # type: ignore
