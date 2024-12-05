@@ -207,7 +207,7 @@ conda deactivate
 
 </details>
 
-### <img alt="Pypi logo" src=https://res.cloudinary.com/practicaldev/image/fetch/s--4-K6Sjm4--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://cdn-images-1.medium.com/max/1600/1%2A_Wkc-WkNu6GJAAQ26jXZOg.png width="100">
+### <img alt="Pypi logo" src=https://github.com/user-attachments/assets/41e5853c-35db-4b00-8b35-c888a1b55979 width="100">
 <a id="pypi"></a>
 Using `pip` to install dependencies directly from PyPI is a straightforward approach. This option works well for users who prefer not to use containers or conda environments but want to manage dependencies via a `requirements.txt` file.
 We recommend using a virtual environment to avoid conflicts with other packages.
@@ -220,13 +220,13 @@ We recommend using a virtual environment to avoid conflicts with other packages.
 First, create a new virtual environment using `venv`:
 
 ```bash
-python3.x -m venv pyresidual
+python3.x -m venv dronalize
 ```
 where `x` is the version of Python you are using, e.g., `3.11` (used in the containers).
 
 Activate the virtual environment:
 ```bash
-source pyresidual/bin/activate
+source dronalize/bin/activate
 ```
 
 Then install the required packages using `pip`:

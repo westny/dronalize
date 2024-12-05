@@ -36,9 +36,12 @@ def align_origin_w_centroid(tracks_meta: DataFrame,
         # Update y-coordinate by adding half of the height
         df['y'] += df['height'] / 2
 
-        # If driving direction is 2, update the x-coordinate by adding half of the width
+        # If driving direction is 2 (left to right), update the x-coordinate by adding half of the width
         if driving_direction == 2:
             df['x'] += df['width'] / 2
+        else:
+            # If driving direction is 1 (right to left), update the x-coordinate by subtracting half of the width
+            df['x'] -= df['width'] / 2
 
         return df
 
