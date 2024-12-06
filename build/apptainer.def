@@ -5,7 +5,7 @@ From: ubuntu:22.04
     environment.yml /opt/environment.yml
 
 %environment
-export PATH="/opt/mambaforge/bin:$PATH"
+export PATH="/opt/miniforge/bin:$PATH"
 export PYTHONNOUSERSITE=1
 
 %post
@@ -20,23 +20,23 @@ apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Mambaforge
+# Install Miniforge
 cd /tmp
-curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge-$(uname)-$(uname -m).sh -fp /opt/mambaforge -b
-rm Mambaforge*sh
+curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh -b -p /opt/miniforge
+rm Miniforge3*sh
 
-export PATH=/opt/mambaforge/bin:$PATH
+export PATH=/opt/miniforge/bin:$PATH
 
-# Activate mamba and create the environment
-. /opt/mambaforge/etc/profile.d/conda.sh
-mamba env create -f /opt/environment.yml
+# Activate Conda and create the environment
+. /opt/miniforge/etc/profile.d/conda.sh
+conda env create -f /opt/environment.yml
 
 # Clean up conda packages to reduce the container size
-mamba clean -a --yes
+conda clean -a --yes
 
 %runscript
-. /opt/mambaforge/etc/profile.d/conda.sh
+. /opt/miniforge/etc/profile.d/conda.sh
 conda activate dronalize
 exec "$@"
 
