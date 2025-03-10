@@ -95,7 +95,7 @@ the [Apptainer website](https://apptainer.org/docs/user/main/quick_start.html#in
 
 #### Option 1: Pull a Pre-built Image from Docker Hub
 We supply several pre-built images on Docker Hub for different CUDA versions.
-Please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags) for more information.
+For more information, please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags).
 
 A pre-built image from Docker Hub can be pulled by running the following command:
 
@@ -149,7 +149,7 @@ the [Docker website](https://docs.docker.com/get-docker/).
 
 #### Option 1: Pull a Pre-built Image from Docker Hub
 We supply several pre-built images on Docker Hub for different CUDA versions.
-Please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags) for more information.
+For more information, please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags).
 
 A pre-built image from Docker Hub can be pulled by running the following command:
 
@@ -371,7 +371,7 @@ Using Apptainer, the shell script can be executed as follows:
   apptainer run /path/to/dronalize.sif bash preprocess.sh
 ``` 
 
-> Depending on the dataset, the number of workers, and your hardware, preprocessing can some time.
+> Depending on the dataset, the number of workers, and your hardware, preprocessing can take some time.
 > Expect a few hours to process **all** datasets with threading enabled. Of course, this only needs to be done once.
 
 ### Data Loading
@@ -598,8 +598,8 @@ through the links:
 > - In total ~ 40,000 vehicles
 > - Road user classes: car, pedestrian/bicycle
 
-<div align="center">
-  <img src=media/ia.gif alt="INTERACTION.gif">
+<div align="center">  
+  <img src=https://github.com/user-attachments/assets/bfb39462-b124-4942-bd89-7312cda6f37b alt="INTERACTION.gif">
 </div>
 
 ***
@@ -941,7 +941,7 @@ In our accompanying [paper](https://arxiv.org/abs/2405.00604), we outline severa
 The figure below illustrates the performance gains achievable through this approach, using the prototype model with default hyperparameters. Specifically, the model is first pre-trained on the INTERACTION dataset and fine-tuned on the inD dataset, and vice versa. As shown, transfer learning can lead to significant improvements in performance, even with a very simple model architecture.
 
 <div align="center">
-  <img src=media/transfer_learning.png alt="transfer_learning.png">
+  <img src=https://github.com/user-attachments/assets/56f86808-ac85-47e5-bc50-3a9915cc9d1b alt="transfer_learning.png">
 </div>
 
 
