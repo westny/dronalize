@@ -14,13 +14,9 @@
 
 import os
 import pickle
-import warnings
 from typing import Optional, Callable
 from torch_geometric.data import Dataset
 from torch_geometric.data import HeteroData
-
-# Ignore FutureWarnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 class DroneDataset(Dataset):

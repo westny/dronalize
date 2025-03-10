@@ -71,7 +71,7 @@ def filter_prediction(pred: torch.Tensor,
         best_idx = norm.sum(dim=1).argmin(dim=-1)  # (N,)
         pred = pred[torch.arange(batch_size), :, best_idx]  # (N, T, 2)
 
-    elif min_criterion == "MAP":
+    elif min_criterion == "ML":
         assert prob is not None, ("Probabilistic criterion requires"
                                   " the probability of the predictions.")
 

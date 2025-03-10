@@ -20,7 +20,7 @@ from torch_geometric.data import HeteroData
 from torch_geometric.nn import radius, knn_graph
 from torch_geometric.utils import to_undirected
 
-from metrics import MinADE, MinFDE, MinAPDE, MissRate, CollisionRate
+from metrics import MinADE, MinFDE, MinAPDE, MissRate
 
 
 class LitModel(pl.LightningModule):
@@ -37,7 +37,6 @@ class LitModel(pl.LightningModule):
         self.min_fde = MinFDE()
         self.min_apde = MinAPDE()
         self.mr = MissRate()
-        self.cr = CollisionRate()
 
     def post_process(self, data: HeteroData) -> HeteroData:
         pos = data['agent']['inp_pos'][:, -1]
@@ -83,7 +82,7 @@ class LitModel(pl.LightningModule):
                  batch_size=trg.size(0), prog_bar=True)
         return loss
 
-    def validation_step(self, data: HeteroData) -> None:
+    def validation_step(self, data: HeteroData, *args) -> None:
         ma_mask = data['agent']['ma_mask']
         ptr = data['agent']['ptr']
 
@@ -93,14 +92,12 @@ class LitModel(pl.LightningModule):
         self.min_fde.update(pred, trg, mask=ma_mask)
         self.min_apde.update(pred, trg, mask=ma_mask)
         self.mr.update(pred, trg, mask=ma_mask)
-        self.cr.update(pred, trg, ptr, mask=ma_mask)
 
         metric_dict = {"val_loss": loss,
                        "val_min_ade": self.min_ade,
                        "val_min_fde": self.min_fde,
                        "val_min_apde": self.min_apde,
-                       "val_mr": self.mr,
-                       "val_cr": self.cr}
+                       "val_mr": self.mr}
 
         self.log_dict(metric_dict, on_step=False, on_epoch=True,
                       batch_size=trg.size(0), prog_bar=True)

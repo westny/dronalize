@@ -1,0 +1,15 @@
+# Description: Configuration file for the uniD dataset
+description: interaction dataset
+
+dataset: INTERACTION
+seed: 42
+sample_freq: 10
+downsample: 2
+skip_samples: 0
+input_len: 1
+output_len: 3
+n_inputs: 7
+n_outputs: 7
+
+# Recordings
+recordings: true

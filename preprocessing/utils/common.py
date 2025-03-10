@@ -15,7 +15,7 @@
 import sys
 import os
 import shutil
-from typing import Optional
+from typing import Optional, Any
 from argparse import Namespace
 
 import torch
@@ -23,6 +23,85 @@ import numpy as np
 from pandas import DataFrame
 from scipy.signal import decimate
 from sklearn.model_selection import train_test_split
+
+
+def create_tensor_dict(input_array: np.ndarray,
+                       target_array: np.ndarray,
+                       agent_ids: list[int],
+                       agent_types: list[int],
+                       sample_freq: int,
+                       downsample_factor: int = 1,
+                       filter_order: int = 1,
+                       additional_features: Optional[list[str]] = None,
+                       intentions: Optional[list[int]] = None,
+                       determine_scored_ids: bool = False,
+                       k_max: int = 8,
+                       ) -> dict[str, Any] | None:
+    if downsample_factor > 1:
+        input_array = decimate_nan(input_array, pad_order='front',
+                                   ds_factor=downsample_factor, fz=sample_freq, filter_order=filter_order)
+        target_array = decimate_nan(target_array, pad_order='back',
+                                    ds_factor=downsample_factor, fz=sample_freq, filter_order=filter_order)
+
+    # Convert to tensors
+    input_tensor = torch.from_numpy(input_array).float()
+    target_tensor = torch.from_numpy(target_array).float()
+
+    if determine_scored_ids:
+        fr = torch.tensor([x[..., 0].unique().size() for x in input_tensor])
+        to = torch.tensor([y[..., 0].unique().size() for y in target_tensor])
+
+        non_scored_ids = torch.where(fr + to <= 3)[0]
+
+        # Skip iteration if the TA is in non_scored_ids
+        if 0 in non_scored_ids:
+            return None
+    else:
+        non_scored_ids = None
+
+    # Handle NaN values
+    input_tensor[torch.isnan(input_tensor)] = 0.
+    target_tensor[torch.isnan(target_tensor)] = 0.
+
+    three_sec = 3 * sample_freq / downsample_factor
+
+    input_mask, valid_mask, sa_mask, ma_mask = get_masks(
+        input_tensor,
+        target_tensor,
+        int(three_sec),
+        non_scored_ids,
+        k_max
+    )
+
+    data = {
+        'num_nodes': len(agent_ids),
+        'ta_index': 0,
+        'ids': agent_ids,
+        'type': torch.tensor(agent_types).long(),
+        'inp_pos': input_tensor[..., :2],
+        'inp_vel': input_tensor[..., 2:4],
+        'inp_acc': input_tensor[..., 4:6],
+        'inp_yaw': input_tensor[..., 6:7],
+        'trg_pos': target_tensor[..., :2],
+        'trg_vel': target_tensor[..., 2:4],
+        'trg_acc': target_tensor[..., 4:6],
+        'trg_yaw': target_tensor[..., 6:],
+        'input_mask': input_mask,
+        'valid_mask': valid_mask,
+        'sa_mask': sa_mask,
+        'ma_mask': ma_mask
+    }
+
+    if intentions is not None:
+        data['intention'] = torch.tensor(intentions).long()
+
+    if additional_features is not None:
+        data.update({
+            'inp_r1': input_tensor[..., 7:8],
+            'inp_r2': input_tensor[..., 8:]
+        })
+
+    return data
 
 
 def erase_previous_line(double_jump: bool = False):
@@ -71,6 +150,19 @@ def create_directories(args: Namespace, dataset: Optional[str] = None):
         os.makedirs(output_dir + "/test")
 
     return output_dir
+
+
+def compute_acceleration(tracks: DataFrame, dt: float) -> DataFrame:
+    def calc_accel(df):
+        if len(df) == 1:  # Single-row case
+            df["ax"] = 0.0  # Assign zero acceleration
+            df["ay"] = 0.0
+        else:
+            df["ax"] = np.gradient(df["vx"].values, dt, edge_order=1)
+            df["ay"] = np.gradient(df["vy"].values, dt, edge_order=1)
+        return df
+
+    return tracks.groupby("track_id", group_keys=False).apply(calc_accel)
 
 
 def get_frame_split(n_frames: int, seed: int = 42, test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -181,10 +273,20 @@ def get_features(df: DataFrame,
                  frame_start: int,
                  frame_end: int,
                  n_features: int,
-                 track_id: int = -1) -> np.ndarray:
+                 track_id: int,
+                 add_features: Optional[str | list[str]] = None) -> np.ndarray:
     """
     Get the features of the agent with id track_id in the frame range [frame_start, frame_end]
     """
+    feature_list = ['x', 'y', 'vx', 'vy', 'ax', 'ay', 'psi']
+
+    if add_features is not None:
+        if isinstance(add_features, str):
+            feature_list.append(add_features)
+        else:
+            feature_list.extend(add_features)
+
+    assert n_features == len(feature_list), "The number of features should match the length of the feature list"
 
     return_array = np.empty((frame_end - frame_start + 1, n_features))
     return_array[:] = np.nan
@@ -199,7 +301,7 @@ def get_features(df: DataFrame,
         return return_array
     frame_offset = first_frame - frame_start
 
-    features = dfx[['x', 'y', 'vx', 'vy', 'ax', 'ay', 'psi']].to_numpy()
+    features = dfx[feature_list].to_numpy()
 
     return_array[frame_offset:frame_offset + features.shape[0], :] = features
 

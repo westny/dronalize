@@ -1,12 +1,11 @@
-
 <div align="center">
 <img alt="Dronalize logo" src=https://github.com/westny/dronalize/assets/60364134/862a8a60-4cd0-4b21-b0d2-a4ee0e5b4f03 width="800px" style="max-width: 100%;">
 
 ______________________________________________________________________
 
 [![Arxiv link](https://img.shields.io/static/v1?label=arXiv&message=Dronalize&color=8A2BE2&logo=arxiv)](https://arxiv.org/abs/2405.00604)
-[![python](https://img.shields.io/badge/Python-3.10%20%7C%203.11-blue.svg)](https://www.python.org/)
-[![pytorch](https://img.shields.io/badge/PyTorch-2.2-blue.svg)](https://pytorch.org/)
+[![python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![pytorch](https://img.shields.io/badge/PyTorch-2.5-blue.svg)](https://pytorch.org/)
 [![contributions](https://img.shields.io/badge/Contributions-welcome-297D1E)](#contributing)
 [![license](https://img.shields.io/badge/License-Apache%202.0-2F2F2F.svg)](LICENSE)
 <br>
@@ -17,37 +16,73 @@ ______________________________________________________________________
 
 </div>
 
-**Dronalize** is a toolbox designed to alleviate the development efforts of researchers working with various drone datasets on behavior prediction problems.
-It includes tools for data preprocessing, visualization, and evaluation, as well as a model development pipeline for data-driven motion forecasting.
-<br> The toolbox utilizes [<img alt="Pytorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src=https://github.com/westny/dronalize/assets/60364134/53554175-0ca1-4020-b8eb-7bbd4ebe0e47 height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/), and [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) for its functionality.
+**Dronalize** is a toolbox designed to alleviate the development efforts of researchers working with various drone
+datasets on behavior prediction problems.
+It includes tools for data preprocessing, visualization, and evaluation, as well as a model development pipeline for
+data-driven motion forecasting.
+<br> The toolbox
+utilizes [<img alt="Pytorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html), [<img alt="PyG logo" src=https://github.com/westny/dronalize/assets/60364134/53554175-0ca1-4020-b8eb-7bbd4ebe0e47 height="12">PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/),
+and [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/)
+for its functionality.
 
-**📰 Latest Updates**
+### 📝 Changelog
 
-- 🚀 Added 4 new datasets to the toolbox: *exiD*, *uniD*, *SIND*, and *A43*.
-- 🔧 Added more attributes to the lane graphs and improved preprocessing scripts.
-- 📦 Added pre-built Docker image to Docker Hub.
-- 🐍 Added PyPi installation instructions.
+### v1.2.0 (March 2025)
+
+- Added the *INTERACTION* dataset
+- Additional attributes in the lane graphs
+- Additional visualization tools
+- Updated default PyTorch version to 2.5
+- Updated requirements and container recipes
+- Additional pre-built Docker images (see [Docker Hub](https://hub.docker.com/r/westny/dronalize/tags))
+
+<details>
+  <summary>Click here for full changelog</summary>
+
+### v1.1.1 (December 2024)
+
+- Fixed minor bugs in the highway dataset preprocessing
+- Minor documentation updates
+
+### v1.1.0 (September 2024)
+
+- Added 4 new datasets: *exiD*, *uniD*, *SIND*, and *A43*
+- Enhanced lane graphs with additional attributes
+- Published pre-built Docker image on Docker Hub
+- Added PyPi installation support
+
+### v1.0.0 (April 2024)
+
+- Initial release
+
+</details>
 
 ***
 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Datasets](#datasets)
+- [Example Use-Cases](#example-use-cases)
 - [Related Work](#related-work)
 - [Contributing](#contributing)
 - [Cite](#cite)
 
 # Installation
+
 There are several alternatives to installation, depending on your needs and preferences.
-Our recommendation and personal preference is to use containers for reproducibility and consistency across different environments.
-We have provided both an Apptainer `.def` file and a `Dockerfile` for this purpose.
-Both recipes use the `mamba` package manager for creating the environments. 
-In both cases, they utilize the same `environment.yml` file that could also be used to create a local conda environment if desired.
-Additionally, we provide a `requirements.txt` file for those who prefer to use `pip` for package management.
+Our recommendation is to use containers for reproducibility and consistency across different
+environments.
+We have provided both an Apptainer `.def` file and a `Dockerfile` for this purpose, including several pre-built images on
+Docker Hub.
+Both container recipes rely on `pip` for installing the necessary dependencies.
+
+For those who prefer direct package management, we also provide a `requirements.txt` file for `pip` users and an `environment.yml` file for creating a local `Conda` environment.
 All necessary files to install the required dependencies are found in the [build](build) directory.
 
 ### <img alt="Apptainer logo" src=https://github.com/westny/dronalize/assets/60364134/6a9e51ae-c6ce-4ad1-b79f-05ca7d959062 width="110">
-[Apptainer](https://apptainer.org/docs/user/main/index.html) is commonly used in high-performance computing (HPC) for creating secure, portable, and reproducible environments. It is well-suited for research and scientific workflows.
+
+[Apptainer](https://apptainer.org/docs/user/main/index.html) is commonly used in high-performance computing (HPC) for
+creating secure, portable, and reproducible environments. It is well-suited for research and scientific workflows.
 It is a lightweight containerization tool that we prefer for its simplicity and ease of use.
 
 <details>
@@ -55,20 +90,23 @@ It is a lightweight containerization tool that we prefer for its simplicity and 
 
 ### Installation Instructions:
 
-If you have not already done so, start by installing Apptainer on your system by following the instructions on the [Apptainer website](https://apptainer.org/docs/user/main/quick_start.html#installation).
+If you have not already done so, start by installing Apptainer on your system by following the instructions on
+the [Apptainer website](https://apptainer.org/docs/user/main/quick_start.html#installation).
 
 #### Option 1: Pull a Pre-built Image from Docker Hub
+We supply several pre-built images on Docker Hub for different CUDA versions.
+Please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags) for more information.
 
-You can pull a pre-built image from Docker Hub by running the following command:
+A pre-built image from Docker Hub can be pulled by running the following command:
 
 ```bash
 apptainer pull dronalize.sif docker://westny/dronalize:latest
 ```
 
-This will download the latest version of the image to your local machine.
-
+This will download the **latest** version of the image to your local machine.
 
 #### Option 2: Build the Image Locally
+
 You can build the container by running the following command:
 
 ```bash
@@ -78,8 +116,10 @@ apptainer build dronalize.sif /path/to/definition_file
 where `/path/to/definition_file` is the path to the `apptainer.def` file in the repository.
 
 ### Running the Container
-Once built, it is very easy to run the container as it only requires a few extra arguments. 
-For example, to start the container and execute the `train.py` script, you can run the following command from the repository root directory:
+
+Once built, it is very easy to run the container as it only requires a few extra arguments.
+For example, to start the container and execute the `train.py` script, you can run the following command from the
+repository root directory:
 
 ```bash
 apptainer run /path/to/dronalize.sif python train.py
@@ -94,24 +134,30 @@ apptainer run --nv /path/to/dronalize.sif python train.py
 </details>
 
 ### <img alt="Docker logo" src=https://github.com/westny/dronalize/assets/60364134/1bf2df76-ab44-4bae-9623-03710eff0572 width="100">
-[Docker](https://www.docker.com/get-started/) is a widely adopted platform for automating the deployment and management of containerized applications. It is suitable for users familiar with containers or those needing an isolated runtime environment.
+
+[Docker](https://www.docker.com/get-started/) is a widely adopted platform for automating the deployment and management
+of containerized applications. It is suitable for users familiar with containers or those needing an isolated runtime
+environment.
 
 <details>
   <summary>Click here for Installation Instructions</summary>
 
-  ### Installation Instructions:
+### Installation Instructions:
 
-If you have not already done so, start by installing Docker on your system by following the instructions on the [Docker website](https://docs.docker.com/get-docker/).
+If you have not already done so, start by installing Docker on your system by following the instructions on
+the [Docker website](https://docs.docker.com/get-docker/).
 
 #### Option 1: Pull a Pre-built Image from Docker Hub
+We supply several pre-built images on Docker Hub for different CUDA versions.
+Please refer to the [Docker Hub repository](https://hub.docker.com/r/westny/dronalize/tags) for more information.
 
-You can pull a pre-built image from Docker Hub by running the following command:
+A pre-built image from Docker Hub can be pulled by running the following command:
 
 ```bash
 docker pull westny/dronalize:latest
 ```
 
-This will download the latest version of the image to your local machine.
+This will download the **latest** version of the image to your local machine.
 
 We recommend tagging the image for easier use:
 
@@ -128,7 +174,6 @@ docker build -t dronalize .
 ```
 
 This will create a Docker image named `dronalize` with all the necessary dependencies.
-
 
 ### Running the Container
 
@@ -147,19 +192,23 @@ docker run -v "$(pwd)":/app -w /app dronalize python train.py
 
 ### GPU Acceleration
 
-To use GPU acceleration, you need to install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+To use GPU acceleration, you need to install
+the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
 ```bash
 # Add the NVIDIA repository
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-
-# Update and install
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+```
+```bash
+# Update, install, and restart Docker
 sudo apt-get update
 sudo apt-get install -y nvidia-container-toolkit
 sudo systemctl restart docker
 ```
+
 and run the container with the `--gpus all` flag.
 
 ```bash
@@ -168,24 +217,74 @@ docker run --gpus all -v "$(pwd)":/app -w /app dronalize python train.py
 
 </details>
 
-### <img alt="Conda logo" src=https://github.com/westny/dronalize/assets/60364134/52d02aa9-6231-4261-8e0f-6c092991c89c width="100">
-[Conda](https://conda.io/projects/conda/en/latest/index.html) is a package and environment manager that allows users to create isolated environments without using containers.
-It is useful for managing dependencies in Python and other languages.
+### <img alt="Pypi logo" src=https://github.com/user-attachments/assets/41e5853c-35db-4b00-8b35-c888a1b55979 width="100">
+
+<a id="pypi"></a>
+Using `pip` to install dependencies directly from PyPI is a straightforward approach. This option works well for users
+who prefer not to use containers or conda environments but want to manage dependencies via a `requirements.txt` file.
+We recommend using a virtual environment to avoid conflicts with other packages.
 
 <details>
   <summary>Click here for Installation Instructions</summary>
 
-  ### Installation Instructions:
+### Installation Instructions:
 
-You can create a [conda](https://conda.io/projects/conda/en/latest/index.html) environment using the provided `environment.yml` file.
+First, create a new virtual environment using `venv`:
+
+```bash
+python3.x -m venv env
+```
+
+where `x` is the version of Python you are using, e.g., `3.11` (used in the containers).
+
+Activate the virtual environment:
+
+```bash
+source env/bin/activate
+```
+
+Then install the required packages using `pip`:
+
+```bash
+pip install -r /path/to/requirements.txt
+```
+
+The environment is now ready to use, and you can run the scripts in the repository.
+
+To deactivate the virtual environment, run:
+
+```bash
+deactivate
+```
+
+Anytime you want to use the environment, you need to activate it again.
+</details>
+
+### <img alt="Conda logo" src=https://github.com/westny/dronalize/assets/60364134/52d02aa9-6231-4261-8e0f-6c092991c89c width="100">
+
+[Conda](https://conda.io/projects/conda/en/latest/index.html) is a package and environment manager that allows users to create isolated environments without using containers.
+It is useful for managing dependencies in Python and other languages.
+
+>**Note:** PyTorch has officially discontinued support for the Anaconda channel.
+> As a result, future updates to the `environment.yml` file may not be maintained or fully supported.
+> Conda users are instead encouraged to use the recipe as a starting point and modify it to suit their needs.
+
+<details>
+  <summary>Click here for Installation Instructions</summary>
+
+### Installation Instructions:
+
+You can create a [conda](https://conda.io/projects/conda/en/latest/index.html) environment using the provided
+`environment.yml` file.
 
 To create the environment, run the following command:
 
 ```bash
 conda env create -f /path/to/environment.yml
 ```
+
 or if using [mamba](https://mamba.readthedocs.io/en/latest/)
-    
+
 ```bash
 mamba env create -f /path/to/environment.yml
 ```
@@ -207,61 +306,34 @@ conda deactivate
 
 </details>
 
-### <img alt="Pypi logo" src=https://github.com/user-attachments/assets/41e5853c-35db-4b00-8b35-c888a1b55979 width="100">
-<a id="pypi"></a>
-Using `pip` to install dependencies directly from PyPI is a straightforward approach. This option works well for users who prefer not to use containers or conda environments but want to manage dependencies via a `requirements.txt` file.
-We recommend using a virtual environment to avoid conflicts with other packages.
-
-<details>
-  <summary>Click here for Installation Instructions</summary>
-
-  ### Installation Instructions:
-
-First, create a new virtual environment using `venv`:
-
-```bash
-python3.x -m venv dronalize
-```
-where `x` is the version of Python you are using, e.g., `3.11` (used in the containers).
-
-Activate the virtual environment:
-```bash
-source dronalize/bin/activate
-```
-
-Then install the required packages using `pip`:
-```bash
-pip install -r /path/to/requirements.txt
-```
-
-The environment is now ready to use, and you can run the scripts in the repository.
-
-To deactivate the virtual environment, run:
-
-```bash
-deactivate
-```
-
-Anytime you want to use the environment, you need to activate it again.
-</details>
-
 <br>
 
 # Usage
-The **Dronalize** toolbox is designed for two main purposes: data preprocessing and evaluation of trajectory prediction models.
-It was developed to be used in conjunction with [<img alt="PyTorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html); in particular, the [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/)  framework.
+
+The **Dronalize** toolbox is designed for two main purposes: data preprocessing and evaluation of trajectory prediction
+models.
+It was developed to be used in conjunction
+with [<img alt="PyTorch logo" src=https://github.com/westny/dronalize/assets/60364134/b6d458a5-0130-4f93-96df-71374c2de579 height="12">PyTorch](https://pytorch.org/docs/stable/index.html);
+in particular,
+the [<img alt="Lightning logo" src=https://github.com/westny/dronalize/assets/60364134/167a7cbb-8346-44ac-9428-5f963ada54c2 height="16">PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/)
+framework.
 
 ### Preprocessing
 
-> Before running the preprocessing scripts, make sure to unzip the downloaded datasets and place them in a directory of your choice.
-> By default, the scripts expect the datasets to be located in the `../datasets` directory, but this can be changed by specifying the `--path` argument.
-> Make sure the unzipped folders are named `highD`, `rounD`, `inD`, `exiD`, `uniD`, `SIND`*, and `A43` respectively.
-> 
+> Before running the preprocessing scripts, make sure to unzip the downloaded datasets and place them in a directory of
+> your choice.
+> By default, the scripts expect the datasets to be located in the `../datasets` directory, but this can be changed by
+> specifying the `--path` argument.
+> Make sure the unzipped folders are named `INTERACTION`, `highD`, `rounD`, `inD`, `exiD`, `uniD`, `SIND`*, and `A43`
+> respectively.
+>
 > *Please see the [Datasets](#datasets) section for additional information on `SIND` file structure.
 
 All functionality related to data preprocessing is contained in the `preprocessing` module.
-Since the datasets have minor differences in their structure, there are separate scripts for preprocessing depending on the dataset used.
-For example, to preprocess the `inD`, `rounD`, `uniD` or `SIND` datasets, you can run the following command (replace `dataset_name` with the respective dataset name):
+Since the datasets have minor differences in their structure, there are separate scripts for preprocessing depending on
+the dataset used.
+For example, to preprocess the `inD`, `rounD`, `uniD` or `SIND` datasets, you can run the following command (replace
+`dataset_name` with the respective dataset name):
 
 ```bash
 python -m preprocessing.preprocess_urban.py --config 'dataset_name' --path 'path/to/datasets'
@@ -273,17 +345,28 @@ for the `highD`, `exiD` or `A43` datasets, you should run:
 python -m preprocessing.preprocess_highway.py --config 'dataset_name' --path 'path/to/datasets'
 ```
 
-By default, these scripts will save the preprocessed data in the `data` directory, this can be changed by specifying the `--output-dir` argument.
-There is an option to use threading for faster processing by setting the `--use-threads` flag that we recommend for efficient processing.
+for the `INTERACTION` dataset, you should run:
 
-There are additional **default** arguments in the respective configuration files within the `preprocessing/config` directory that should not be changed to facilitate consistency across different studies.
-Finally, `preprocess.sh` is a script that can be used to preprocess all datasets in one go using the default arguments that we recommend for consistency.
+```bash
+python -m preprocessing.preprocess_interact.py --config 'dataset_name' --path 'path/to/datasets'
+```
+
+By default, these scripts will save the preprocessed data in the `data` directory, this can be changed by specifying the
+`--output-dir` argument.
+There is an option to use threading for faster processing by setting the `--use-threads` flag that we recommend for
+efficient processing.
+
+There are additional **default** arguments in the respective configuration files within the `preprocessing/config`
+directory that should not be changed to facilitate consistency across different studies.
+Finally, `preprocess.sh` is a script that can be used to preprocess all datasets in one go using the default arguments
+that we recommend for consistency.
 
 ```bash
 . preprocess.sh
 ```
 
 Using Apptainer, the shell script can be executed as follows:
+
 ```bash
   apptainer run /path/to/dronalize.sif bash preprocess.sh
 ``` 
@@ -291,26 +374,34 @@ Using Apptainer, the shell script can be executed as follows:
 > Depending on the dataset, the number of workers, and your hardware, preprocessing can some time.
 > Expect a few hours to process **all** datasets with threading enabled. Of course, this only needs to be done once.
 
-
 ### Data Loading
-In [datamodules](datamodules), you will find the necessary classes for loading the preprocessed data into PyTorch training pipelines.
+
+In [datamodules](datamodules), you will find the necessary classes for loading the preprocessed data into PyTorch
+training pipelines.
 It includes:
+
 - `DroneDataset`: A `Dataset` class built around `torch_geometric`. Found in: [dataset.py](datamodules/dataset.py)
-- `DroneDataModule`: A `DataModule` class, including `Dataloader` built around `lightning.pytorch`. Found in: [dataloader.py](datamodules/dataloader.py)
-- `CoordinateTransform` and `CoordinateShift`: Example transformations. Found in: [transforms.py](datamodules/transforms.py)
+- `DroneDataModule`: A `DataModule` class, including `Dataloader` built around `lightning.pytorch`. Found
+  in: [dataloader.py](datamodules/dataloader.py)
+- `CoordinateTransform` and `CoordinateShift`: Example transformations. Found
+  in: [transforms.py](datamodules/transforms.py)
 
-> [dataloader.py](datamodules/dataloader.py) is designed to be runnable as a standalone script for quick testing of the data loading pipeline.
-It includes a `main` function that can be used to load the data and visualize it for debugging and/or educational purposes.
-
+> [dataloader.py](datamodules/dataloader.py) is designed to be runnable as a standalone script for quick testing of the
+> data loading pipeline.
+> It includes a `main` function that can be used to load the data and visualize it for debugging and/or educational
+> purposes.
 
 ### Modeling
-In [models/prototype.py](models/prototype.py), there is a baseline neural network for trajectory prediction.
-It is a simple encoder-decoder model that takes as input the past trajectory of a road user and outputs a predicted future trajectory.
-It learns interactions between road users by encoding the scene as a graph and uses a GNN to process the data. 
-The model could be used as a starting point for developing more advanced models, where adding map-aware mechanisms would be a natural next step.
+
+In [models/prototype/model.py](models/prototype/model.py), there is a baseline neural network for trajectory prediction.
+It is a simple encoder-decoder model that takes as input the past trajectory of a road user and outputs a predicted
+future trajectory.
+It learns interactions between road users by encoding the scene as a graph and uses a GNN to process the data.
+The model could be used as a starting point for developing more advanced models, where adding map-aware mechanisms would
+be a natural next step.
 
 ```python
-# prototype.py
+# model.py
 import torch
 import torch.nn as nn
 import torch_geometric.nn as ptg
@@ -351,40 +442,58 @@ class Net(nn.Module):
 ```
 
 ### Model Training
-The toolbox includes a training script, [train.py](train.py), that can be used to train your models on the preprocessed data.
-The script is designed to be run from the repository root directory and includes several arguments that can be used to configure the training process.
-By default, it uses configuration files in `.json` format found in the [configs](configs) directory, detailing the required modules and hyperparameters for training.
-Additional runtime arguments, such as the number of workers, GPU acceleration, debug mode, and model checkpointing, can be specified when running the script (see [arguments.py](arguments.py) for more information).
 
-The training script is designed to be used with PyTorch Lightning; besides using the custom data modules previously mentioned, it also requires a `LightningModule` that defines the model and training loop.
-In [base.py](base.py), you will find a base class that can be modified to build your own `LightningModule`. 
+The toolbox includes a training script, [train.py](train.py), that can be used to train your models on the preprocessed
+data.
+The script is designed to be run from the repository root directory and includes several arguments that can be used to
+configure the training process.
+By default, it uses configuration files in `.yml` format found in the [configs](configs) directory, detailing the
+required modules and hyperparameters for training.
+Additional runtime arguments, such as the number of workers, GPU acceleration, debug mode, and model checkpointing, can
+be specified when running the script (see [arguments.py](arguments.py) for more information).
+
+The training script is designed to be used with PyTorch Lightning; besides using the custom data modules previously
+mentioned, it also requires a `LightningModule` that defines the model and training loop.
+In [models/prototype/litmodule.py](models/prototype/litmodule.py), you will find a base class that can be modified to
+build your own `LightningModule`.
 In its current form, it can be used to train and evaluate the baseline model.
 It also details how to use the proposed evaluation metrics for trajectory prediction.
 
 An example of how to train the model is shown below:
+
 ```bash
   [apptainer run --nv path/to/dronalize.sif] python train.py --add-name test --dry-run 0 --use-cuda 1 --num-workers 4
 ```
 
 We recommend users modify the default arguments in [arguments.py](arguments.py) to suit their needs.
 
-> Note that the default logger is set to `wandb` ([weights & biases](https://wandb.ai/)) for logging performance metrics during training.
-> It is our preferred tool for tracking experiments, but it can be easily replaced with other logging tools by modifying the `Trainer` in the training script.
-> 
-> See the official [Lightning documentation](https://lightning.ai/docs/pytorch/stable/) for more information on customizing training behavior and how to use the library in general.
+> Note that the default logger is set to `wandb` ([weights & biases](https://wandb.ai/)) for logging performance metrics
+> during training.
+> It is our preferred tool for tracking experiments, but it can be easily replaced with other logging tools by modifying
+> the `Trainer` in the training script.
+>
+> See the official [Lightning documentation](https://lightning.ai/docs/pytorch/stable/) for more information on
+> customizing training behavior and how to use the library in general.
 
 ### Metrics
-The toolbox includes several evaluation metrics for trajectory prediction, implemented in the [`metrics`](metrics) module.
-The metrics are designed to handle both uni- and multi-modal predictions.
-Predictions are expected to be in the form of `(batch_size, num_timesteps, 2)` or `(batch_size, num_timesteps, num_modes, 2)`, where `num_modes` is the number of modes in the prediction.
-> There is also support for mode-first predictions of shape `(batch_size, num_modes, num_timesteps, 2)` that can be used by setting the `mode_first` flag to `True`.
-> Users can of course change the default behavior by directly modifying the metrics. 
 
-Most metrics are also compatible with specifying a `min_criterion` (`FDE`, `ADE`, `MAP`) that is used to select which of the modes to evaluate against the ground-truth target (Default: `FDE`).
-Setting `min_criterion` to `MAP` will evaluate the metrics based on the mode with the highest predicted probability. 
-Note that `MAP` can only be used in conjunction with the optional argument `Prob` of shape `(batch_size, num_modes)` representing the weights of each mode.
+The toolbox includes several evaluation metrics for trajectory prediction, implemented in the [`metrics`](metrics)
+module.
+The metrics are designed to handle both uni- and multi-modal predictions.
+Predictions are expected to be in the form of `(batch_size, num_timesteps, 2)` or
+`(batch_size, num_timesteps, num_modes, 2)`, where `num_modes` is the number of modes in the prediction.
+> There is also support for mode-first predictions of shape `(batch_size, num_modes, num_timesteps, 2)` that can be used
+> by setting the `mode_first` flag to `True`.
+> Users can of course change the default behavior by directly modifying the metrics.
+
+Most metrics are also compatible with specifying a `min_criterion` (`FDE`, `ADE`, `ML`) that is used to select which of
+the modes to evaluate against the ground-truth target (Default: `FDE`).
+Setting `min_criterion` to `ML` will evaluate the metrics based on the mode with the highest predicted probability.
+Note that `ML` can only be used in conjunction with the optional argument `Prob` of shape `(batch_size, num_modes)`
+representing the weights of each mode.
 
 The following metrics are implemented:
+
 - [**Min. Average Displacement Error (minADE)**](metrics/min_ade.py)
 - [**Min. Final Displacement Error (minFDE)**](metrics/min_fde.py)
 - [**Min. Average Path Displacement Error (minAPDE)**](metrics/min_apde.py)
@@ -392,6 +501,7 @@ The following metrics are implemented:
 - [**Collision Rate**](metrics/collision_rate.py)
 - [**Min. Brier**](metrics/min_brier.py)
 - [**Negative Log-Likelihood (NLL)**](metrics/log_likelihood.py)
+- [**Expected Displacement Error**](metrics/exp_de.py)
 
 For their mathematical definitions, please refer to the paper.
 
@@ -399,28 +509,99 @@ For their mathematical definitions, please refer to the paper.
 
 # Datasets
 
-The toolbox has been developed for use of the *[highD](https://levelxdata.com/highd-dataset/)*, *[rounD](https://levelxdata.com/round-dataset/)*, *[inD](https://levelxdata.com/ind-dataset/)*, *[exiD](https://levelxdata.com/exid-dataset/)*, *[uniD](https://levelxdata.com/unid-dataset/)*, *[SIND](https://github.com/SOTIF-AVLab/SinD)*, and [A43](https://data.isac.rwth-aachen.de/?p=58) datasets.
-The datasets contain recorded trajectories from different locations in Germany and China, including various highways, roundabouts, and intersections.
+The toolbox has been developed for use with multiple drone-captured datasets.
+The datasets contain recorded trajectories from different locations in Germany, China, Bulgaria, and USA, including
+various highways, roundabouts, and intersections.
 Their high quality make them particularly suitable for early-stage research and development.
-They are freely available for non-commercial use, which is our targeted audience, but most require applying for usage through the links: 
+They are freely available for non-commercial use, which is our targeted audience, but most require applying for usage
+through the links:
 
 <div align="center">
 
-| Dataset | Link                                     | Notes                                   |
-|---------|------------------------------------------|-----------------------------------------|
-| *highD* | https://levelxdata.com/highd-dataset/    |                                         |
-| *rounD* | https://levelxdata.com/round-dataset/    |                                         |
-| *inD*   | https://levelxdata.com/ind-dataset/      |                                         |
-| *exiD*  | https://levelxdata.com/exid-dataset/     |                                         |
-| *uniD*  | https://levelxdata.com/unid-dataset/     |                                         |
-| *SIND*  | https://github.com/SOTIF-AVLab/SinD      | Visit the GitHub link for email request |
-| *A43*   | https://data.isac.rwth-aachen.de/?p=58   | Directly downloadable at the link       |
-
+| Dataset       | Link                                   | Location                                      | Notes                                   |
+|---------------|----------------------------------------|-----------------------------------------------|-----------------------------------------|
+| *INTERACTION* | https://interaction-dataset.com/       | Germany, China, Bulgaria, USA (mixed traffic) |                                         | 
+| *highD*       | https://levelxdata.com/highd-dataset/  | German highways                               |                                         |
+| *rounD*       | https://levelxdata.com/round-dataset/  | German roundabouts                            |                                         |
+| *inD*         | https://levelxdata.com/ind-dataset/    | German intersections                          |                                         |
+| *exiD*        | https://levelxdata.com/exid-dataset/   | German highway exits                          |                                         | 
+| *uniD*        | https://levelxdata.com/unid-dataset/   | German university campus                      |                                         |
+| *SIND*        | https://github.com/SOTIF-AVLab/SinD    | Chinese signalized intersections              | Visit the GitHub link for email request |
+| *A43*         | https://data.isac.rwth-aachen.de/?p=58 | German highway A43                            | Directly downloadable at the link       |
 
 </div>
 
-> Several datasets in the leveLXData suite were recently updated (April 2024) that include improvements to the maps, as well as the addition of some new locations.
-> This toolbox is designed to work with the updated datasets, and we recommend using the latest versions for the most recent features to avoid having to modify the toolbox.
+> Several datasets in the leveLXData suite were recently updated (April 2024) that include improvements to the maps, as
+> well as the addition of some new locations.
+> This toolbox is designed to work with the updated datasets, and we recommend using the latest versions for the most
+> recent features to avoid having to modify the toolbox.
+***
+
+### *[INTERACTION](https://arxiv.org/abs/1910.03088)*: An INTERnational, Adversarial and Cooperative moTION Dataset in Interactive Driving Scenarios with Semantic Maps
+
+<details>
+  <summary>Abstract</summary>
+    <p style="font-style: italic;">
+        Interactive motion datasets of road participants are
+        vital to the development of autonomous vehicles in both industry
+        and academia. Research areas such as motion prediction, motion
+        planning, representation learning, imitation learning, behavior
+        modeling, behavior generation, and algorithm testing, require
+        support from high-quality motion datasets containing interactive
+        driving scenarios with different driving cultures. In this paper,
+        we present an INTERnational, Adversarial and Cooperative
+        moTION dataset (INTERACTION dataset) in interactive driving
+        scenarios with semantic maps.
+        Five features of the dataset are highlighted. 1) The interactive
+        driving scenarios are diverse, including urban/highway/ramp
+        merging and lane changes, roundabouts with yield/stop signs,
+        signalized intersections, intersections with one/two/all-way stops, etc.
+        2) Motion data from different countries and different continents
+        are collected so that driving preferences and styles in different
+        cultures are naturally included. 3) The driving behavior is highly
+        interactive and complex with adversarial and cooperative motions
+        of various traffic participants. Highly complex behavior such
+        as negotiations, aggressive/irrational decisions and traffic rule
+        violations are densely contained in the dataset, while regular
+        behavior can also be found from cautious car-following, stop,
+        left/right/U-turn to rational lane-change and cycling and pedestrian crossing,
+        etc. 4) The levels of criticality span wide, from
+        regular safe operations to dangerous, near-collision maneuvers.
+        Real collision, although relatively slight, is also included. 5) Maps
+        with complete semantic information are provided with physical
+        layers, reference lines, lanelet connections and traffic rules.
+        The data is recorded from drones and traffic cameras, and the
+        processing pipelines for both are briefly described. Statistics of
+        the dataset in terms of number of entities and interaction density
+        are also provided, along with some utilization examples in the
+        areas of motion prediction, imitation learning, decision-making
+        and planing, representation learning, interaction extraction and
+        social behavior generation. The dataset can be downloaded via
+        https://interaction-dataset.com.
+    </p>
+</details>
+
+<details>
+  <summary>Bibtex</summary>
+
+    @article{interactiondataset,
+    title = {{INTERACTION} {Dataset}: {An} {INTERnational}, {Adversarial} and {Cooperative} {moTION} {Dataset} in {Interactive} {Driving} {Scenarios} with {Semantic} {Maps}},
+    journal={arXiv preprint arXiv:1910.03088},
+    author = {Zhan, Wei and Sun, Liting and Wang, Di and Shi, Haojie and Clausse, Aubrey and Naumann, Maximilian and K\"ummerle, Julius and K\"onigshof, Hendrik and Stiller, Christoph and de La Fortelle, Arnaud and Tomizuka, Masayoshi},
+    year = {2019}}
+
+</details>
+
+> #### Dataset Overview
+> - Naturalistic trajectory dataset from 18 different recording locations across three continents
+> - Multiple driving scenarios: urban/highway/ramp merging, roundabouts, intersections
+> - In total ~ 40,000 vehicles
+> - Road user classes: car, pedestrian/bicycle
+
+<div align="center">
+  <img src=media/ia.gif alt="INTERACTION.gif">
+</div>
+
 ***
 
 ### *[highD](https://arxiv.org/abs/1810.05642)*: The Highway Drone Dataset
@@ -460,6 +641,7 @@ They are freely available for non-commercial use, which is our targeted audience
        year={2018},
        doi={10.1109/ITSC.2018.8569552}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -502,6 +684,7 @@ They are freely available for non-commercial use, which is our targeted audience
         year={2020},
         doi={10.1109/ITSC45102.2020.9294728}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -559,6 +742,7 @@ They are freely available for non-commercial use, which is our targeted audience
         year={2020},
         doi={10.1109/IV47402.2020.9304839}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -592,6 +776,7 @@ They are freely available for non-commercial use, which is our targeted audience
         year={2022},
         doi={10.1109/IV51971.2022.9827305}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -624,6 +809,7 @@ They are freely available for non-commercial use, which is our targeted audience
       howpublished = {\url{https://levelxdata.com/unid-dataset/}},
       note = {Accessed: ...}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -657,6 +843,7 @@ They are freely available for non-commercial use, which is our targeted audience
       year={2022},
       organization={IEEE}
     }
+
 </details>
 
 > #### Dataset Overview
@@ -676,14 +863,19 @@ They are freely available for non-commercial use, which is our targeted audience
 <br>
 
 #### Using the SIND Dataset
-We provide two options for using the SIND dataset: 1) using the entire dataset, or 2) using the demo dataset available on the [SIND GitHub repository](www.github.com/SOTIF-AVLab/SinD).
+
+We provide two options for using the SIND dataset: 1) using the entire dataset, or 2) using the demo dataset available
+on the [SIND GitHub repository](www.github.com/SOTIF-AVLab/SinD).
 Using the demo dataset is recommended for users who want to quickly test the toolbox.
-Its use is straightforward, simply name the repository root folder `SIND_demo`, place it in the `datasets` directory, and run the preprocessing script with the `demo` configuration.
+Its use is straightforward, simply name the repository root folder `SIND_demo`, place it in the `datasets` directory,
+and run the preprocessing script with the `demo` configuration.
 > Note that some files in the repo are quite large and may require git-lfs to download properly.
 
 
-For users who want to use the entire dataset, we ask you to organize the data to match the structure of the other datasets.
+For users who want to use the entire dataset, we ask you to organize the data to match the structure of the other
+datasets.
 Rename the parent folder to `SIND` and make sure it has the following structure:
+
 ```
 SIND
 ├── data
@@ -703,7 +895,8 @@ SIND
 
 ***
 
-### *[A43](https://data.isac.rwth-aachen.de/?p=58)*: Vehicle Trajectory Dataset from Drone Videos Including Off-Ramp and Congested Traffic
+### *[A43](https://data.isac.rwth-aachen.de/?p=58)*: Vehicle Trajectory Dataset from Drone Videos Including Off-Ramp and
+Congested Traffic
 
 <details>
   <summary>Abstract</summary>
@@ -724,12 +917,13 @@ SIND
       year={2024},
       publisher={Elsevier}
     }
+
 </details>
 
 > #### Dataset Overview
 > - Naturalistic trajectory dataset from highway A43 near Münster, Germany
 > - In total ~ 8,600 vehicles
-> - All road users classes: car, truck, bus, motorcycle 
+> - All road users classes: car, truck, bus, motorcycle
 
 <table>
   <tr>
@@ -740,11 +934,25 @@ SIND
 
 <br>
 
+# Example Use-Cases
+
+In our accompanying [paper](https://arxiv.org/abs/2405.00604), we outline several use cases for the toolbox and discuss future research directions. One key application is leveraging the toolbox’s general-purpose design for transfer learning, where models are pre-trained on one dataset and fine-tuned on another.
+
+The figure below illustrates the performance gains achievable through this approach, using the prototype model with default hyperparameters. Specifically, the model is first pre-trained on the INTERACTION dataset and fine-tuned on the inD dataset, and vice versa. As shown, transfer learning can lead to significant improvements in performance, even with a very simple model architecture.
+
+<div align="center">
+  <img src=media/transfer_learning.png alt="transfer_learning.png">
+</div>
+
+
 # Related work
-We have been working with the datasets in several research projects, resulting in multiple published papers focused on behavior prediction.
+
+We have been working with the datasets in several research projects, resulting in multiple published papers focused on
+behavior prediction.
 If you're interested in learning more about our findings, please refer to the following publications:
 
 #### [Diffusion-Based Environment-Aware Trajectory Prediction](https://arxiv.org/abs/2403.11643)
+
 - **Authors:** Theodor Westny, Björn Olofsson, and Erik Frisk
 - **Published In:** ArXiv preprint arXiv:2403.11643
 
@@ -769,9 +977,11 @@ If you're interested in learning more about our findings, please refer to the fo
       journal={arXiv preprint arXiv:2403.11643},
       year={2024}
     }
+
 </details>
 
 #### [MTP-GO: Graph-Based Probabilistic Multi-Agent Trajectory Prediction with Neural ODEs](https://arxiv.org/abs/2302.00735)
+
 - **Authors:** Theodor Westny, Joel Oskarsson, Björn Olofsson, and Erik Frisk
 - **Published In:** 2023 IEEE Transactions on Intelligent Vehicles, Vol. 8, No. 9
 
@@ -800,10 +1010,11 @@ If you're interested in learning more about our findings, please refer to the fo
       pages={4223-4236},
       doi={10.1109/TIV.2023.3282308}}
     }
+
 </details>
 
-
 #### [Evaluation of Differentially Constrained Motion Models for Graph-Based Trajectory Prediction](https://arxiv.org/abs/2304.05116)
+
 - **Authors:** Theodor Westny, Joel Oskarsson, Björn Olofsson, and Erik Frisk
 - **Published In:** In 2023 IEEE Intelligent Vehicles Symposium (IV)
 
@@ -833,14 +1044,19 @@ If you're interested in learning more about our findings, please refer to the fo
       year={2023},
       doi={10.1109/IV55152.2023.10186615}
     }
+
 </details>
 
 ## Contributing
-We welcome contributions to the toolbox, and we encourage you to submit pull requests with new features, bug fixes, or improvements.
-Any form of collaboration is appreciated, and we are open to suggestions for new features or changes to the existing codebase.
+
+We welcome contributions to the toolbox, and we encourage you to submit pull requests with new features, bug fixes, or
+improvements.
+Any form of collaboration is appreciated, and we are open to suggestions for new features or changes to the existing
+codebase.
 Please direct your inquiries to the authors of the paper.
 
 ## Cite
+
 If you use the toolbox in your research, please consider citing the paper:
 
 ```
@@ -856,4 +1072,5 @@ Feel free [email us](mailto:theodor.westny@liu.se) if you have any questions or 
 If you have any suggestions for improvements or new features, we would be happy to hear from you.
 
 ## License
+
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

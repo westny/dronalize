@@ -14,7 +14,10 @@
 
 import os
 import numpy as np
-from pandas import DataFrame, unique, isna, read_csv
+from pandas import DataFrame, isna, read_csv
+
+from preprocessing.road_network import get_highway_graph
+from preprocessing.utils import get_frame_split, get_meta_property
 
 
 def align_origin_w_centroid(tracks_meta: DataFrame,
@@ -36,9 +39,10 @@ def align_origin_w_centroid(tracks_meta: DataFrame,
         # Update y-coordinate by adding half of the height
         df['y'] += df['height'] / 2
 
-        # If driving direction is 2 (left to right), update the x-coordinate by adding half of the width
+        # If driving direction is 2 (right to left), update the x-coordinate by adding half of the width
         if driving_direction == 2:
             df['x'] += df['width'] / 2
+
         else:
             # If driving direction is 1 (right to left), update the x-coordinate by subtracting half of the width
             df['x'] -= df['width'] / 2
@@ -173,89 +177,56 @@ def add_displacement_feat(rec_meta: DataFrame,
                           debug: bool = False) -> DataFrame:
     """
     Add roadDisplacement and laneDisplacement as features to the tracks dataframe.
-    These features are used to determine the relative position
-     of the vehicle with respect to the road and the lane.
-    They could potentially replace the lane graph and be added
-     to the input features of the model.
+    These features represent the relative position of the vehicle
+    with respect to the road and the lane.
     """
 
-    ulm = [float(l) for l in list(rec_meta['upperLaneMarkings'])[0].split(';')]
-    llm = [float(l) for l in list(rec_meta['lowerLaneMarkings'])[0].split(';')]
+    ulm = np.array([float(l) for l in rec_meta['upperLaneMarkings'].iloc[0].split(';')])
+    llm = np.array([float(l) for l in rec_meta['lowerLaneMarkings'].iloc[0].split(';')])
 
     def compute_road_w():
-        upper_l = ulm[-1] - ulm[0]
-        lower_l = llm[-1] - llm[0]
-        return upper_l, lower_l
+        return ulm[-1] - ulm[0], llm[-1] - llm[0]
 
     def compute_lane_w():
-        upper_l = np.mean(np.diff(ulm))
-        lower_l = np.mean(np.diff(llm))
-        return np.mean([upper_l, lower_l])
+        return np.mean([np.mean(np.diff(ulm)), np.mean(np.diff(llm))])
 
     def get_road_edge_markings():
         return ulm[0], llm[0]
 
     def get_lane_markings():
-        combined = ulm + llm
-        return np.array(combined)
+        return np.concatenate((ulm, llm))
 
     def get_dyl(y, dd, lm, lw):
         dy = 2 * (y - lm) / lw - 1
-        if dd == 2:
-            dy *= (-1)
-        return dy
+        return dy * (-1) if dd == 2 else dy
 
     def get_dy(y, dd, curr_lane_id, lm, lw):
         dy = 2 * (y - lm[curr_lane_id - 2]) / lw - 1
-        if dd == 2:
-            dy *= (-1)
-        return dy
-
-    tracks['roadDisplacement'] = np.empty(len(tracks))
-    tracks['laneDisplacement'] = np.empty(len(tracks))
+        return dy * (-1) if dd == 2 else dy
 
     if debug:
+        tracks['laneDisplacement'] = 0.
+        tracks['roadDisplacement'] = 0.
         return tracks
 
+    # Precompute road-related variables
     ur, lr = get_road_edge_markings()
     ruw, rlw = compute_road_w()
-
     lm = get_lane_markings()
     lw = compute_lane_w()
-    t_ids = unique(tracks.trackId)
-    for t_id in t_ids:
-        driving_dir = int(tracks_meta[tracks_meta.trackId == t_id].drivingDirection.iloc[0])
-        lane_ids = tracks.loc[tracks.trackId == t_id, 'laneId'].to_numpy()
-        y = tracks.loc[tracks.trackId == t_id, 'y'].to_numpy()
-        d_y = get_dy(y, driving_dir, lane_ids, lm, lw)
 
+    def compute_displacement(df):
+        driving_dir = int(tracks_meta.loc[tracks_meta.trackId == df.name, 'drivingDirection'].iloc[0])
+        lane_ids = df['laneId'].values
+        y = df['y'].values
+
+        df['laneDisplacement'] = get_dy(y, driving_dir, lane_ids, lm, lw)
         marking, width = (ur, ruw) if driving_dir == 1 else (lr, rlw)
-        d_y_r = get_dyl(y, driving_dir, marking, width)
+        df['roadDisplacement'] = get_dyl(y, driving_dir, marking, width)
 
-        tracks.loc[tracks['trackId'] == t_id, ['laneDisplacement']] = d_y
-        tracks.loc[tracks['trackId'] == t_id, ['roadDisplacement']] = d_y_r
-    return tracks
+        return df
 
-
-def get_disp_features(df: DataFrame, frame_start: int, frame_end: int, track_id=-1) -> np.ndarray:
-    return_array = np.empty((frame_end - frame_start + 1, 2))
-    return_array[:] = np.nan
-
-    if track_id != -1:
-        dfx = df[(df.frame >= frame_start) & (df.frame <= frame_end) & (df.trackId == track_id)]
-    else:
-        dfx = df[(df.frame >= frame_start) & (df.frame <= frame_end)]
-    try:
-        first_frame = dfx.frame.values[0]
-    except IndexError:
-        return return_array
-    frame_offset = first_frame - frame_start
-
-    features = dfx[['roadDisplacement', 'laneDisplacement']].to_numpy()
-
-    return_array[frame_offset:frame_offset + features.shape[0], :] = features
-
-    return return_array
+    return tracks.groupby("trackId", group_keys=False).apply(compute_displacement)
 
 
 def update_signs(rec_meta: DataFrame,
@@ -318,7 +289,6 @@ def lane_assignment(tr: DataFrame,
                     neg_lanes: int = 0,
                     num_lanes: int = 4,
                     lane_width: float = 3.75):
-
     # Function to apply the ffill or bfill logic based on the last value of laneId for each track_id
     def fill_lane_id(group):
         # Check if there are any NaNs in the 'laneId' column
@@ -353,7 +323,7 @@ def lane_assignment(tr: DataFrame,
     valid_mask = (ith_lane >= 1 - neg_lanes) & (ith_lane <= num_lanes - neg_lanes)
 
     # Assign valid lanes
-    lane_id[mask_valid] = np.where(valid_mask, ith_lane, np.NaN)
+    lane_id[mask_valid] = np.where(valid_mask, ith_lane, np.nan)
 
     # apply to dataframe
     tr['laneId'] = lane_id
@@ -370,10 +340,8 @@ def preprocess_highd(path: str,
                      output_dir: str,
                      seed: int = 42,
                      dataset: str = "highD",
+                     add_supp: bool = False,
                      debug: bool = False) -> tuple:
-    from preprocessing.utils.highway_graph import get_highway_graph
-    from preprocessing.utils.common import get_frame_split
-
     # Construct the base directory path for your data
     base_dir = os.path.join(path, dataset, "data")
 
@@ -413,6 +381,8 @@ def preprocess_highd(path: str,
     tracks = align_origin_w_centroid(tracks_meta, tracks, debug=debug)
     tracks = add_driving_direction(tracks_meta, tracks, debug=debug)
     tracks = add_maneuver(tracks_meta, tracks, debug=debug)
+    if add_supp:
+        tracks = add_displacement_feat(rec_meta, tracks_meta, tracks, debug=debug)
     tracks = update_signs(rec_meta, tracks_meta, tracks, debug=debug)
     tracks = add_heading_feat(tracks, debug=debug)
 
@@ -432,9 +402,10 @@ def preprocess_isac(path: str,
                     output_dir: str,
                     seed: int = 42,
                     dataset: str = "A43",
+                    add_supp: bool = False,
                     debug: bool = False) -> tuple:
-    from preprocessing.utils.highway_graph import get_highway_graph
-    from preprocessing.utils.common import get_frame_split, get_meta_property
+    if add_supp:
+        raise NotImplementedError("Support for additional data not implemented for A43 dataset.")
 
     # Construct the base directory path for your data
     base_dir = os.path.join(path, dataset)

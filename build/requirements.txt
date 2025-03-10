@@ -1,15 +1,11 @@
---find-links https://data.pyg.org/whl/torch-2.2.0+cpu.html
-# --find-links https://data.pyg.org/whl/torch-2.2.0+cu121.html
-
-torch==2.2.*
-numpy==1.26.*
-torch_geometric
-pyg_lib
-torch_scatter
-torch_cluster
-lightning
-torchmetrics
+torch==2.5.1
+numpy==2.2.3
+torch_geometric==2.5.1
+scipy==1.15.2
+lightning==2.5.0
+wandb
 pandas
+pyarrow
 scikit-learn
 matplotlib
 tqdm
@@ -18,3 +14,10 @@ osmium
 networkx
 pytest
 pyproj
+lark
+
+# Specify the version of torch-cluster to install
+# -f https://data.pyg.org/whl/torch-2.5.0+cpu.html
+# -f https://data.pyg.org/whl/torch-2.5.0+cu121.html
+-f https://data.pyg.org/whl/torch-2.5.0+cu124.html
+torch-cluster

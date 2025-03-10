@@ -39,15 +39,13 @@ class MinADE(Metric):
         :param: prob: The probability of the predictions. (N, M)
         :param: mask: The mask for valid positions. (N, T)
         :param: best_idx: The index of the best prediction. (N,) (to avoid recomputing it)
-        :param: min_criterion: Either 'FDE', 'ADE', or 'MAP'.
+        :param: min_criterion: Either 'FDE', 'ADE', or 'ML'.
         :param: mode_first: Whether the mode is the first dimension. (default: False)
         """
 
         if pred.dim() == 4:
             pred, _ = filter_prediction(pred, trg, mask, prob, min_criterion,
                                         best_idx, mode_first=mode_first)
-
-        batch_size = pred.size(0)
 
         norm = torch.linalg.norm(pred - trg, dim=-1)  # (N, T)
         if mask is not None:

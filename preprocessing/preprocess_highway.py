@@ -14,7 +14,6 @@
 
 import math
 import os
-import sys
 import time
 import yaml
 import pickle
@@ -22,15 +21,30 @@ import warnings
 from typing import Any
 from multiprocessing import Pool, Value, Lock
 
-import torch
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
 from preprocessing.arguments import args
-from preprocessing.utils.highway_utils import preprocess_highd, preprocess_isac
-from preprocessing.utils.exit_utils import preprocess_exid
-from preprocessing.utils.common import *
+from preprocessing.utils import (
+    # utils/highway_utils.py:
+    preprocess_highd,
+    preprocess_isac,
+    # utils/exit_utils.py:
+    preprocess_exid,
+    # utils/common.py:
+    create_tensor_dict,
+    create_directories,
+    erase_previous_line,
+    get_other_sets,
+    get_maneuver,
+    get_meta_property,
+    get_neighbors,
+    get_features,
+    update_frames,
+    class_list_to_int_list
+
+)
 
 worker_counter: Any
 worker_lock: Any
@@ -53,6 +67,7 @@ def process_id(id0: int,
                ds_factor: int = 5,
                filt_ord: int = 7,
                skip: int = 12,
+               add_supp: bool = False,
                debug: bool = False,
                ) -> None:
     """
@@ -74,9 +89,17 @@ def process_id(id0: int,
     :param filt_ord: The filter order
     :param skip: The number of frames to skip
     :param dataset: The dataset name
+    :param add_supp: Additional data
     :param debug: Debug mode
     :return: None
     """
+
+    # Check if supplementary data should be added
+    if add_supp:
+        add_feats = ["laneDisplacement", "roadDisplacement"]
+        n_inputs += 2
+    else:
+        add_feats = None
 
     not_set = get_other_sets(current_set)
 
@@ -138,59 +161,22 @@ def process_id(id0: int,
         agent_ids = [id0, *sa_ids]
 
         # Retrieve meta information
-        intention = get_maneuver(tr, prediction_frame - 1, agent_ids, prop='maneuver')
+        intentions = get_maneuver(tr, prediction_frame - 1, agent_ids, prop='maneuver')
         agent_type = class_list_to_int_list(get_meta_property(tr_meta, agent_ids, prop='class'))
-
-        # Convert to tensors
-        intention_tensor = torch.tensor(intention).long()
-        agent_type_tensor = torch.tensor(agent_type).long()
 
         input_array = np.empty((n_sas + 1, fz * input_len, n_inputs))
         target_array = np.empty((n_sas + 1, fz * output_len, n_outputs))
 
         for j, v_id in enumerate(agent_ids):
-            input_array[j] = get_features(tr, frame, prediction_frame - 1, n_inputs, v_id)
+            input_array[j] = get_features(tr, frame, prediction_frame - 1, n_inputs, v_id, add_feats)
             target_array[j] = get_features(tr, prediction_frame, final_frame - 1, n_outputs, v_id)
 
-        # Down-sample the data
-        if ds_factor > 1:
-            input_array = decimate_nan(input_array, pad_order='front',
-                                       ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
-            target_array = decimate_nan(target_array, pad_order='back',
-                                        ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
-
-        # Convert to tensors
-        input_tensor = torch.from_numpy(input_array).float()
-        target_tensor = torch.from_numpy(target_array).float()
-
-        # Create masks
-        three_sec = 3 * fz / ds_factor
-
-        input_mask, valid_mask, sa_mask, ma_mask = \
-            get_masks(input_tensor, target_tensor, int(three_sec))
-
-        # make nans into zeros
-        input_tensor[torch.isnan(input_tensor)] = 0.
-        target_tensor[torch.isnan(target_tensor)] = 0.
-
-        agent = {'num_nodes': n_sas + 1,
-                 'ta_index': 0,
-                 'ids': agent_ids,
-                 'type': agent_type_tensor,
-                 'inp_pos': input_tensor[..., :2],
-                 'inp_vel': input_tensor[..., 2:4],
-                 'inp_acc': input_tensor[..., 4:6],
-                 'inp_yaw': input_tensor[..., 6:],
-                 'trg_pos': target_tensor[..., :2],
-                 'trg_vel': target_tensor[..., 2:4],
-                 'trg_acc': target_tensor[..., 4:6],
-                 'trg_yaw': target_tensor[..., 6:],
-                 'intention': intention_tensor,
-                 'input_mask': input_mask,
-                 'valid_mask': valid_mask,
-                 'sa_mask': sa_mask,
-                 'ma_mask': ma_mask
-                 }
+        # Create the agent dictionary
+        agent = create_tensor_dict(input_array, target_array,
+                                   agent_ids, agent_type,
+                                   fz, ds_factor, filt_ord,
+                                   additional_features=add_feats,
+                                   intentions=intentions)
 
         data: dict[str, Any] = {'rec_id': rec_id, 'agent': agent}
         data.update(ln_graph['upper_map'] if driving_dir == 1 else ln_graph['lower_map'])
@@ -235,12 +221,13 @@ def process_ids(current_set: str,
     skip_lc = config["skip_lc_samples"]
     skip_lk = config["skip_lk_samples"]
 
+    add_supp = args.add_supp
     debug = args.debug
 
     outer_lc_args = (ds, fz, input_len, output_len, n_inputs,
-                     n_outputs, ds_factor, filt_ord, skip_lc, debug)
+                     n_outputs, ds_factor, filt_ord, skip_lc, add_supp, debug)
     outer_lk_args = (ds, fz, input_len, output_len, n_inputs,
-                     n_outputs, ds_factor, filt_ord, skip_lk, debug)
+                     n_outputs, ds_factor, filt_ord, skip_lk, add_supp, debug)
 
     # Check if there are any saved samples in the current set directory
     set_dir = f"{output_dir}/{current_set}"
@@ -291,12 +278,16 @@ def process_ids(current_set: str,
         else:
             n_workers = cpu_count
 
-    with Pool(n_workers, initializer=init_worker,
-              initargs=(save_id_counter, save_lock)) as pool:
-        with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
-                  position=1, leave=False) as pbar:
-            for _ in pool.imap_unordered(worker_function, arguments):
-                pbar.update()
+        with Pool(n_workers, initializer=init_worker,
+                  initargs=(save_id_counter, save_lock)) as pool:
+            with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
+                      position=1, leave=False) as pbar:
+                for _ in pool.imap_unordered(worker_function, arguments):
+                    pbar.update()
+
+    else:
+        for arg in tqdm(arguments, desc=f"{current_set.capitalize()}", position=1, leave=False):
+            process_id(*arg)
 
 
 def init_worker(counter, lock):
@@ -355,11 +346,14 @@ if __name__ == "__main__":
             print(f"Preprocessing started for recording {r_id}...")
 
             if dataset.lower() == "highd":
-                shared_args = preprocess_highd(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+                shared_args = preprocess_highd(args.path, r_id, config, output_dir, random_seed,
+                                               add_supp=args.add_supp, debug=args.debug)
             elif dataset.lower() == "exid":
-                shared_args = preprocess_exid(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+                shared_args = preprocess_exid(args.path, r_id, config, output_dir, random_seed,
+                                              add_supp=args.add_supp, debug=args.debug)
             elif dataset.lower() == "a43":
-                shared_args = preprocess_isac(args.path, r_id, config, output_dir, random_seed, debug=args.debug)
+                shared_args = preprocess_isac(args.path, r_id, config, output_dir, random_seed,
+                                              add_supp=args.add_supp, debug=args.debug)
             else:
                 raise ValueError(f"Unknown dataset: {dataset}")
 

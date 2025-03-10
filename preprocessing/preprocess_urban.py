@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-import sys
 import time
 
 import yaml
@@ -22,14 +21,26 @@ import warnings
 from typing import Any
 from multiprocessing import Pool, Value, Lock
 
-import torch
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
 from preprocessing.arguments import args
-from preprocessing.utils.urban_utils import preprocess_levelxd, preprocess_sind
-from preprocessing.utils.common import *
+from preprocessing.utils import (
+    # utils/urban_utils.py:
+    preprocess_levelxd,
+    preprocess_sind,
+    # utils/common.py:
+    create_tensor_dict,
+    create_directories,
+    erase_previous_line,
+    get_other_sets,
+    update_frames,
+    get_neighbors,
+    get_meta_property,
+    class_list_to_int_list,
+    get_features,
+)
 
 worker_counter: Any
 worker_lock: Any
@@ -53,6 +64,7 @@ def process_id(
         ds_factor: int = 5,
         filt_ord: int = 7,
         skip: int = 12,
+        add_supp: bool = False,
         debug: bool = False,
 ) -> None:
     """
@@ -74,10 +86,19 @@ def process_id(
     :param filt_ord: The filter order
     :param skip: The number of frames to skip
     :param dataset: The dataset name
+    :param add_supp: Add supplementary data
     :param debug: Debug mode
     :return: None
     """
 
+    # Check if supplementary data should be added
+    if add_supp:
+        add_feats = ["rho", "theta"]
+        n_inputs += 2
+    else:
+        add_feats = None
+
+    # Check current split
     not_set = get_other_sets(current_set)
 
     if not_set is None:
@@ -105,68 +126,24 @@ def process_id(
         # Retrieve meta information
         agent_type = class_list_to_int_list(get_meta_property(tr_meta, agent_ids, prop="class"))
 
-        # Convert to tensors
-        agent_type_tensor = torch.tensor(agent_type).long()
-
+        # Create the input and target arrays
         input_array = np.empty((n_sas + 1, fz * input_len, n_inputs))
         target_array = np.empty((n_sas + 1, fz * output_len, n_outputs))
 
         for j, v_id in enumerate(agent_ids):
-            input_array[j] = get_features(tr, frame, prediction_frame - 1, n_inputs, v_id)
+            input_array[j] = get_features(tr, frame, prediction_frame - 1, n_inputs, v_id, add_feats)
             target_array[j] = get_features(tr, prediction_frame, final_frame - 1, n_outputs, v_id)
 
-        # Down-sample the data
-        if ds_factor > 1:
-            input_array = decimate_nan(input_array, pad_order='front',
-                                       ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
-            target_array = decimate_nan(target_array, pad_order='back',
-                                        ds_factor=ds_factor, fz=fz, filter_order=filt_ord)
+        # Create the agent dictionary
+        agent = create_tensor_dict(input_array, target_array,
+                                   agent_ids, agent_type,
+                                   fz, ds_factor, filt_ord,
+                                   additional_features=add_feats,
+                                   determine_scored_ids=True)
 
-        # Convert to tensors
-        input_tensor = torch.from_numpy(input_array).float()
-        target_tensor = torch.from_numpy(target_array).float()
-
-        # Create masks
-        three_sec = 3 * fz / ds_factor
-
-        # Detect static_ids (we don't want to score on parked vehicles)
-        non_scored_ids = []
-        for j in range(len(agent_ids)):
-            a = len(input_tensor[j, :, 0].unique())
-            b = len(target_tensor[j, :, 0].unique())
-            if a + b <= 3:
-                non_scored_ids.append(j)
-        if 0 in non_scored_ids:
+        if agent is None:
+            # If the TA is a parked vehicle, skip the frame
             continue
-
-        non_scored_ids_tensor = torch.tensor(non_scored_ids)
-
-        input_mask, valid_mask, sa_mask, ma_mask = get_masks(
-            input_tensor, target_tensor, int(three_sec), non_scored_ids_tensor
-        )
-
-        # make nans into zeros
-        input_tensor[torch.isnan(input_tensor)] = 0.0
-        target_tensor[torch.isnan(target_tensor)] = 0.0
-
-        agent = {
-            "num_nodes": n_sas + 1,
-            "ta_index": 0,
-            "ids": agent_ids,
-            "type": agent_type_tensor,
-            "inp_pos": input_tensor[..., :2],
-            "inp_vel": input_tensor[..., 2:4],
-            "inp_acc": input_tensor[..., 4:6],
-            "inp_yaw": input_tensor[..., 6:],
-            "trg_pos": target_tensor[..., :2],
-            "trg_vel": target_tensor[..., 2:4],
-            "trg_acc": target_tensor[..., 4:6],
-            "trg_yaw": target_tensor[..., 6:],
-            "input_mask": input_mask,
-            "valid_mask": valid_mask,
-            "sa_mask": sa_mask,
-            "ma_mask": ma_mask,
-        }
 
         data: dict[str, Any] = {'rec_id': rec_id, 'agent': agent}
         data.update(ln_graph)
@@ -211,9 +188,10 @@ def process_ids(
     ds_factor = config["downsample"]
     filt_ord = 2 if 'sind' in ds.lower() else 7
     skip = config["skip_samples"]
+    add_supp = args.add_supp
     debug = args.debug
 
-    outer_args = (ds, fz, input_len, output_len, n_inputs, n_outputs, ds_factor, filt_ord, skip, debug)
+    outer_args = (ds, fz, input_len, output_len, n_inputs, n_outputs, ds_factor, filt_ord, skip, add_supp, debug)
 
     # Check if there are any saved samples in the current set directory
     set_dir = f"{output_dir}/{current_set}"
@@ -255,12 +233,15 @@ def process_ids(
         else:
             n_workers = cpu_count
 
-    with Pool(n_workers, initializer=init_worker,
-              initargs=(save_id_counter, save_lock)) as pool:
-        with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
-                  position=1, leave=False) as pbar:
-            for _ in pool.imap_unordered(worker_function, arguments):
-                pbar.update()
+        with Pool(n_workers, initializer=init_worker,
+                  initargs=(save_id_counter, save_lock)) as pool:
+            with tqdm(total=len(ta_ids), desc=f"{current_set.capitalize()}",
+                      position=1, leave=False) as pbar:
+                for _ in pool.imap_unordered(worker_function, arguments):
+                    pbar.update()
+    else:
+        for arg in tqdm(arguments, desc=f"{current_set.capitalize()}", position=1, leave=False):
+            worker_function(arg)
 
 
 def init_worker(counter, lock):
@@ -332,11 +313,13 @@ if __name__ == "__main__":
 
             if dataset.lower() in ("round", "ind", "unid"):
                 shared_args = preprocess_levelxd(
-                    args.path, r_id, config, output_dir, random_seed, dataset, args.debug
+                    args.path, r_id, config, output_dir, random_seed, dataset,
+                    add_supp=args.add_supp, debug=args.debug
                 )
             elif "sind" in dataset.lower():
                 shared_args = preprocess_sind(
-                    args.path, r_id, config, output_dir, random_seed, dataset, args.debug
+                    args.path, r_id, config, output_dir, random_seed, dataset,
+                    add_supp=args.add_supp, debug=args.debug
                 )
             else:
                 raise ValueError(f"Dataset {dataset} not supported.")

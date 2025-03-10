@@ -39,6 +39,9 @@ parser.add_argument('--output-dir', type=str, default="data",
                     help='output directory for processed data')
 parser.add_argument('--add-name', type=str, default="",
                     help='additional string to add to output-dir save name')
+parser.add_argument('--add-supp', type=str_to_bool, default=False,
+                    const=True, nargs="?",
+                    help='if additional features should be added to the data (polar or road displacement)')
 parser.add_argument('--use-threads', type=str_to_bool, default=False,
                     const=True, nargs="?", help='if multiprocessing should be used')
 parser.add_argument('--debug', type=str_to_bool, default=False,

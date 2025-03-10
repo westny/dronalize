@@ -23,19 +23,19 @@ class CoordinateTransform(BaseTransform):
      to be relative to the last position of the TA.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
     def __call__(self, data: HeteroData) -> HeteroData:
         hist_pos = data['agent']['inp_pos']
         hist_vel = data['agent']['inp_vel']
-        hist_acc = data['agent']['inp_acc']
         hist_ori = data['agent']['inp_yaw']
 
         fut_pos = data['agent']['trg_pos']
         fut_vel = data['agent']['trg_vel']
         fut_ori = data['agent']['trg_yaw']
-
-        map_pos = data['map_point']['position']
-
         ta_index = data['agent']['ta_index']
+
         ta_pos = hist_pos[ta_index]
         ta_ori = hist_ori[ta_index]
 
@@ -51,25 +51,31 @@ class CoordinateTransform(BaseTransform):
 
         n_hist_pos = (hist_pos - origin) @ rot_mat_t * hist_mask
         n_hist_vel = hist_vel @ rot_mat_t * hist_mask
-        n_hist_acc = hist_acc @ rot_mat_t * hist_mask
         n_hist_ori = torch.atan2(torch.sin(hist_ori - ori), torch.cos(hist_ori - ori))
 
         n_fut_pos = (fut_pos - origin) @ rot_mat_t * fut_mask
         n_fut_vel = fut_vel @ rot_mat_t * fut_mask
         n_fut_ori = torch.atan2(torch.sin(fut_ori - ori), torch.cos(fut_ori - ori))
 
-        n_map_pos = (map_pos - origin) @ rot_mat_t
-
         data['agent']['inp_pos'] = n_hist_pos
         data['agent']['inp_vel'] = n_hist_vel
-        data['agent']['inp_acc'] = n_hist_acc
         data['agent']['inp_yaw'] = n_hist_ori
+
+        if 'inp_acc' in data['agent']:
+            hist_acc = data['agent']['inp_acc']
+            n_hist_acc = hist_acc @ rot_mat_t * hist_mask
+            data['agent']['inp_acc'] = n_hist_acc
 
         data['agent']['trg_pos'] = n_fut_pos
         data['agent']['trg_vel'] = n_fut_vel
         data['agent']['trg_yaw'] = n_fut_ori
 
-        data['map_point']['position'] = n_map_pos
+        if 'map_point' in data.node_types:
+            if 'position' in data['map_point']:
+                map_pos = data['map_point']['position']
+                n_map_pos = (map_pos - origin) @ rot_mat_t
+
+                data['map_point']['position'] = n_map_pos
 
         return data
 
@@ -79,12 +85,14 @@ class CoordinateShift(BaseTransform):
     Shifts the origin of the global coordinate system to be in the last position of the TA.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
     def __call__(self, data: HeteroData) -> HeteroData:
         hist_pos = data['agent']['inp_pos']
         fut_pos = data['agent']['trg_pos']
-        map_pos = data['map_point']['position']
-
         ta_index = data['agent']['ta_index']
+
         ta_pos = hist_pos[ta_index]
 
         origin = ta_pos[-1].unsqueeze(0)
@@ -94,10 +102,14 @@ class CoordinateShift(BaseTransform):
 
         n_hist_pos = (hist_pos - origin) * hist_mask
         n_fut_pos = (fut_pos - origin) * fut_mask
-        n_map_pos = map_pos - origin
 
         data['agent']['inp_pos'] = n_hist_pos
         data['agent']['trg_pos'] = n_fut_pos
-        data['map_point']['position'] = n_map_pos
+
+        if 'map_point' in data.node_types:
+            if 'position' in data['map_point']:
+                map_pos = data['map_point']['position']
+                n_map_pos = map_pos - origin
+                data['map_point']['position'] = n_map_pos
 
         return data

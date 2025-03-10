@@ -1,43 +1,25 @@
 Bootstrap: docker
-From: ubuntu:22.04
+From: pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 %files
-    environment.yml /opt/environment.yml
+    container_req.txt /opt/requirements.txt
 
 %environment
-export PATH="/opt/miniforge/bin:$PATH"
 export PYTHONNOUSERSITE=1
 
 %post
 
-# Install necessary system packages
-apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    nano \
-    wget \
-    curl \
-    ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Set working directory
+mkdir -p /app
+cd /app
 
-# Install Miniforge
-cd /tmp
-curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-bash Miniforge3-$(uname)-$(uname -m).sh -b -p /opt/miniforge
-rm Miniforge3*sh
+# Install dependencies from req.txt
+pip install --no-cache-dir -r /opt/requirements.txt
 
-export PATH=/opt/miniforge/bin:$PATH
-
-# Activate Conda and create the environment
-. /opt/miniforge/etc/profile.d/conda.sh
-conda env create -f /opt/environment.yml
-
-# Clean up conda packages to reduce the container size
-conda clean -a --yes
+# Install `torch-cluster`
+pip install --no-cache-dir torch-cluster -f https://data.pyg.org/whl/torch-2.5.0+cu124.html
 
 %runscript
-. /opt/miniforge/etc/profile.d/conda.sh
-conda activate dronalize
 exec "$@"
 
 %help

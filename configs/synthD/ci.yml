@@ -13,14 +13,14 @@
 # limitations under the License.
 
 # General Description
-experiment_name: "Example setup"
-task: "motion forecasting"
-dataset: "synthD"
+experiment_name: Example setup
+task: motion forecasting
+dataset: synthD
 
 # Model Configuration
 model:
-  class: "Net"
-  module: "models.prototype"
+  class: Net
+  module: models.prototype.model
   num_inputs: 5
   num_hidden: 32
   num_outputs: 2
@@ -28,20 +28,20 @@ model:
 
 # Lightning Module Configuration
 litmodule:
-  class: "LitModel"
-  module: "base"
+  class: LitModel
+  module: models.prototype.litmodule
 
 # Data Module Configuration
 datamodule:
-  class: "DroneDataModule"
-  module: "datamodules.dataloader"
+  class: DroneDataModule
+  module: datamodules.dataloader
   batch_size: 16
-  root: "data/"
-  name: "synthD"
+  root: data
+  name: synthD
   transform: null
 
 # Training Configuration
 training:
-  dataset: "synthD"
+  dataset: synthD
   epochs: 100
   lr: 0.0005

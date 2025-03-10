@@ -21,7 +21,7 @@ def test_filter_prediction_criterion() -> None:
     mask = torch.randint(0, 2, (batch_size, seq_len))
     prob = torch.randn(batch_size, num_modes)
 
-    for min_criterion in ['FDE', 'ADE', 'MAP']:
+    for min_criterion in ['FDE', 'ADE', 'ML']:
         pred_, best_idx_ = filter_prediction(pred, trg, mask, prob,
                                              min_criterion, mode_first=False)
         assert pred_.size() == (batch_size, seq_len, num_dims)
@@ -40,7 +40,7 @@ def test_filter_prediction_mode_consistency() -> None:
     mask = torch.randint(0, 2, (batch_size, seq_len))
     prob = torch.randn(batch_size, num_modes)
 
-    for min_criterion in ['FDE', 'ADE', 'MAP']:
+    for min_criterion in ['FDE', 'ADE', 'ML']:
         pred = torch.randn(batch_size, seq_len, num_modes, num_dims)
         pred_list = []
         best_idx_list = []

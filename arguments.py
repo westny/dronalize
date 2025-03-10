@@ -62,8 +62,10 @@ parser.add_argument('--dry-run', type=str_to_bool, default=True,
 parser.add_argument('--small-ds', type=str_to_bool, default=False,
                     const=True, nargs="?",
                     help='Use tiny versions of dataset for fast testing (default: False)')
-parser.add_argument('--config', type=str, default="example",
+parser.add_argument('--config', '-c', type=str, default="example",
                     help='config file path for experiment (default: example)')
+parser.add_argument('--pre-train', '-pt', type=str, default="",
+                    help='file containing a pre-trained model (default: none)')
 parser.add_argument('--root', type=str, default="",
                     help='root path for dataset (default: "")')
 

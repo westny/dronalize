@@ -14,7 +14,23 @@
 
 import os
 import numpy as np
-from pandas import read_csv, concat, merge
+from pandas import read_csv, concat, merge, DataFrame
+
+from preprocessing.road_network import get_lane_graph
+from preprocessing.utils import get_frame_split, compute_acceleration
+
+
+def add_polar_coordinates(tracks: DataFrame,
+                          x0: float = 0.0,
+                          y0: float = 0.0) -> DataFrame:
+    def polar_to_center(df):
+        x, y = df["x"].values, df["y"].values
+        r = np.sqrt((x - x0) ** 2 + (y - y0) ** 2)
+        a = np.arctan2(y - y0, x - x0)
+        df["rho"], df["theta"] = r, a
+        return df
+
+    return tracks.groupby("trackId", group_keys=False).apply(polar_to_center)
 
 
 def preprocess_levelxd(path: str,
@@ -22,11 +38,9 @@ def preprocess_levelxd(path: str,
                        config: dict,
                        output_dir: str,
                        seed: int = 42,
-                       dataset: str = "isac",
+                       dataset: str = "rounD",
+                       add_supp: bool = False,
                        debug: bool = False) -> tuple:
-    from preprocessing.utils.lanelet_graph import get_lanelet_graph
-    from preprocessing.utils.common import get_frame_split
-
     # Get the approximate geographical center of the scene
     p0 = (config["recordings"][rec_id]["x0"], config["recordings"][rec_id]["y0"])
 
@@ -53,7 +67,7 @@ def preprocess_levelxd(path: str,
     utm_x0 = rec_meta.xUtmOrigin.values[0]
     utm_y0 = rec_meta.yUtmOrigin.values[0]
 
-    lane_graph = get_lanelet_graph(lanelet_path, utm_x0, utm_y0, p0[0], p0[1], return_torch=True)
+    lane_graph = get_lane_graph(lanelet_path, utm_x0, utm_y0, p0[0], p0[1], return_torch=True)
 
     # Perform some initial renaming
     if "vx" not in tracks.columns:
@@ -69,8 +83,18 @@ def preprocess_levelxd(path: str,
     if "x" not in tracks.columns:
         tracks.rename(columns={"xCenter": "x"}, inplace=True)
         tracks.rename(columns={"yCenter": "y"}, inplace=True)
-        tracks.x = tracks.x - p0[0]
-        tracks.y = tracks.y - p0[1]
+
+    # Shift the data
+    tracks.x = tracks.x - p0[0]
+    tracks.y = tracks.y - p0[1]
+
+    # If add supp is True, add polar coordinates to the data
+    if add_supp:
+        tracks['rho'] = 0.
+        tracks['theta'] = 0.
+
+        if not debug:
+            tracks = add_polar_coordinates(tracks)
 
     # Make class lowercase in tracks_meta
     tracks_meta["class"] = tracks_meta["class"].str.lower()
@@ -90,10 +114,8 @@ def preprocess_sind(path: str,
                     output_dir: str,
                     seed: int = 42,
                     dataset: str = "sinD",
+                    add_supp: bool = False,
                     debug: bool = False) -> tuple:
-    from preprocessing.utils.lanelet_graph import get_lanelet_graph
-    from preprocessing.utils.common import get_frame_split
-
     # Get the approximate geographical center of the scene
     p0 = (config["recordings"][rec_id]["x0"], config["recordings"][rec_id]["y0"])
 
@@ -134,7 +156,7 @@ def preprocess_sind(path: str,
         veh_tracks_path = os.path.join(base_dir, folders[0], f"Veh_smoothed_tracks.csv")
 
     # Construct the Lane Graph
-    lane_graph = get_lanelet_graph(lanelet_path, map_x0=p0[0], map_y0=p0[1], return_torch=True)
+    lane_graph = get_lane_graph(lanelet_path, map_x0=p0[0], map_y0=p0[1], return_torch=True)
 
     # Load the data
     ped_df = read_csv(ped_tracks_path, engine='pyarrow')
@@ -147,15 +169,9 @@ def preprocess_sind(path: str,
     ped_df['ax'] = 0.
     ped_df['ay'] = 0.
 
-    unique_ids = ped_df['track_id'].unique()
-    # loop through all unique track_id and calculate acceleration using numpy gradient
-    for i in unique_ids:
-        df = ped_df.loc[ped_df['track_id'] == i]
-        dt = df['timestamp_ms'].diff().dropna().mean() / 1000
-        ax = np.gradient(df['vx'], dt, edge_order=1)
-        ay = np.gradient(df['vy'], dt, edge_order=1)
-        ped_df.loc[ped_df['track_id'] == i, 'ax'] = ax
-        ped_df.loc[ped_df['track_id'] == i, 'ay'] = ay
+    # Calculate acceleration using numpy gradient
+    if not debug:
+        ped_df = compute_acceleration(ped_df, 0.1)
 
     veh_drop_columns = ["yaw_rad", "heading_rad", "length", "width", "v_lon", "v_lat", "a_lon", "a_lat"]
     veh_df = veh_df.drop(columns=veh_drop_columns)
@@ -185,6 +201,14 @@ def preprocess_sind(path: str,
     # Perform some shifting of the data
     tracks.x = tracks.x - p0[0]
     tracks.y = tracks.y - p0[1]
+
+    # If add supp is True, add polar coordinates to the data
+    if add_supp:
+        tracks['rho'] = 0.
+        tracks['theta'] = 0.
+
+        if not debug:
+            tracks = add_polar_coordinates(tracks)
 
     # get the largest frameId in the dataset
     final_frame = tracks.frame.max()

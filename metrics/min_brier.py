@@ -41,7 +41,7 @@ class MinBrier(Metric):
         :param: mask: The mask for valid positions. (N, T)
         :param: best_idx: The index of the best prediction. (N,) (to avoid recomputing it)
         :param: logit: Whether the probabilities are logits.
-        :param: min_criterion: Either 'FDE', 'ADE', or 'MAP'.
+        :param: min_criterion: Either 'FDE', 'ADE', or 'ML'.
         :param: mode_first: Whether the mode is the first dimension. (default: False)
         """
         assert prob is not None, ("Probabilistic criterion requires"

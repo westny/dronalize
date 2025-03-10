@@ -86,11 +86,22 @@ def main(save_name: str) -> None:
         logger = False
     else:
         run_name = f"{save_name}_{time.strftime('%d-%m_%H:%M:%S')}"
-        logger = WandbLogger(project="dronalize", name=run_name)
+        logger = WandbLogger(project="dronalizeV3", name=run_name)
 
     # Setup model, datamodule and trainer
     net = TorchModel(config["model"])
     model = LitModel(net, config["training"])
+
+    # Load checkpoint into model
+    if args.pre_train:
+        pt_ckpt = Path("saved_models") / args.pre_train
+        pt_ckpt = pt_ckpt.with_suffix(".ckpt")
+        assert pt_ckpt.exists(), f"Could not find pre-trained model: {pt_ckpt}"
+        ckpt_dict = torch.load(pt_ckpt, weights_only=True)
+        model.load_state_dict(ckpt_dict["state_dict"], strict=False)
+
+        print(f"\nSuccessfully loaded pre-trained model: {pt_ckpt}\n")
+        print('----------------------------------------------------')
 
     if args.root:
         config["datamodule"]["root"] = args.root

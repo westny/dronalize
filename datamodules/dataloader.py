@@ -15,16 +15,9 @@
 from typing import Optional
 from argparse import Namespace
 
-import torch
-import numpy as np
 import lightning.pytorch as pl
-import matplotlib.pyplot as plt
-
-from matplotlib import colors
-from matplotlib.collections import LineCollection
 
 from lightning.pytorch import LightningDataModule
-from torch_geometric.utils import subgraph
 from torch_geometric.data import Dataset
 from torch_geometric.loader import DataLoader
 import torch_geometric.transforms as pyg_tf
@@ -46,18 +39,22 @@ class DroneDataModule(LightningDataModule):
         self.root = config["root"]
         self.dataset = config["name"]
         self.batch_size = config["batch_size"]
-        if config["transform"] is not None:
-            if isinstance(config["transform"], list):
-                self.transform = pyg_tf.Compose([import_from_module("datamodules.transforms",
-                                                                    t)() for t in config["transform"]])
-            else:
-                self.transform = import_from_module("datamodules.transforms",
-                                                    config["transform"])()
 
         self.small_data = args.small_ds
         self.num_workers = args.num_workers
         self.pin_memory = args.pin_memory
         self.persistent_workers = args.persistent_workers
+
+        self.transform = self._get_transform(config.get("transform", None))
+
+    @staticmethod
+    def _get_transform(transform_config: None | list | str):
+        if transform_config is None:
+            return None
+        if isinstance(transform_config, list):
+            return pyg_tf.Compose([import_from_module("datamodules.transforms", t)()
+                                   for t in transform_config])
+        return import_from_module("datamodules.transforms", transform_config)()
 
     def setup(self, stage: Optional[str] = None) -> None:
         self.train = DroneDataset(root=self.root, dataset=self.dataset, split='train',
@@ -91,85 +88,15 @@ class DroneDataModule(LightningDataModule):
 
 
 if __name__ == "__main__":
+    from visualization import visualize_batch
+
     pl.seed_everything(42)
-
-
-    def get_segments(pos, color):
-        linefade = colors.to_rgb(color) + (0.0,)
-        myfade = colors.LinearSegmentedColormap.from_list('my', [linefade, color])
-        alphas = np.clip(np.exp(np.linspace(0, 1, pos.shape[0] - 1)) - 0.6, 0, 1)
-        tmp = pos[:, :2][:, None, :]
-        segments = np.hstack((tmp[:-1], tmp[1:]))
-        return segments, alphas, myfade
-
 
     config = {'root': '../data', 'name': 'rounD', 'batch_size': 32}
     args = Namespace(small_ds=False, num_workers=0, pin_memory=False, persistent_workers=False)
+
     dm = DroneDataModule(config, args)
     dm.setup()
 
-    gen = iter(dm.train_dataloader())
-    data = next(gen)
-
-    BATCH_IDX = 24  # 24 is used to create Fig. 1 in the paper
-
-    batch = data['agent']['batch'] == BATCH_IDX
-    pos = data['agent']['inp_pos'][batch]
-    heading = data['agent']['inp_yaw'][batch]
-    pos_eq_zero = pos == 0
-    pos_eq_zero[0] = False
-    pos[pos_eq_zero] = float("nan")
-
-    gt = data['agent']['trg_pos'][batch]
-    gt[gt == 0] = float("nan")
-
-    valid_mask = data['agent']['valid_mask'][batch]
-    ma_mask = data['agent']['ma_mask'][batch]
-    ma_idx = torch.where(ma_mask[:, 0])[0]
-
-    map_batch = data['map_point']['batch'] == BATCH_IDX
-    map_pos = data['map_point']['position'][map_batch]
-    map_type = data['map_point']['type'][map_batch]
-    map_edge_index = data['map_point', 'to', 'map_point']['edge_index']
-    map_edge_type = data['map_point', 'to', 'map_point']['type']
-
-    map_edge_index, map_edge_type = subgraph(map_batch, map_edge_index,
-                                             map_edge_type, relabel_nodes=True)
-
-    #
-    for i in range(map_edge_index.shape[1]):
-        if map_edge_type[i] == 2:
-            edge = map_edge_index[:, i]
-            plt.plot(map_pos[edge, 0], map_pos[edge, 1], color='gray', lw=1,
-                     zorder=1, alpha=.9, linestyle='solid')
-
-        elif map_edge_type[i] == 1:
-            edge = map_edge_index[:, i]
-            plt.plot(map_pos[edge, 0], map_pos[edge, 1], color='darkgray', lw=0.5,
-                     zorder=0, alpha=.6, linestyle=(0, (5, 10)))
-
-    ax = plt.gca()
-
-    COLOR = 'tab:red'
-    for i in range(pos.shape[0]):
-        if i == 0:
-            COLOR = 'tab:blue'
-        elif i in ma_idx:
-            COLOR = 'tab:green'
-        else:
-            COLOR = 'tab:red'
-
-        segments, alphas, myfade = get_segments(pos[i], COLOR)
-        lc = LineCollection(segments, array=alphas, cmap=myfade, lw=5, zorder=0)
-        line = ax.add_collection(lc)
-        plt.plot(gt[i, :, 0], gt[i, :, 1], c=COLOR, marker='.', markersize=10, lw=2, alpha=0.3)
-
-    ax.set_aspect('equal')
-    ax.set_xlim(-50, 200)
-    ax.set_ylim(-30, 35)
-
-    plt.axis('off')
-    plt.tight_layout()
-    plt.show()
-
-    print(data)
+    data = next(iter(dm.train_dataloader()))
+    visualize_batch(data, batch_idx=24, use_ma_idx=True)  # 24 for Fig. 1 in toolbox paper

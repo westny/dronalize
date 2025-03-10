@@ -14,7 +14,10 @@
 
 import os
 import numpy as np
-from pandas import DataFrame, unique, read_csv
+from pandas import DataFrame, read_csv
+
+from preprocessing.road_network import get_lane_graph
+from preprocessing.utils import get_frame_split
 
 
 def add_driving_direction_exits(tracks_meta: DataFrame,
@@ -132,9 +135,11 @@ def preprocess_exid(path: str,
                     output_dir: str,
                     seed: int = 42,
                     dataset: str = "exiD",
+                    add_supp: bool = False,
                     debug: bool = False) -> tuple:
-    from preprocessing.utils.lanelet_graph import get_lanelet_graph
-    from preprocessing.utils.common import get_frame_split
+    if add_supp:
+        raise NotImplementedError("Support for additional data not implemented for exiD dataset.")
+
 
     # Get the approximate geographical center of the scene
     p0 = (config["recordings"][rec_id]["x0"], config["recordings"][rec_id]["y0"])
@@ -162,7 +167,7 @@ def preprocess_exid(path: str,
     utm_x0 = rec_meta.xUtmOrigin.values[0]
     utm_y0 = rec_meta.yUtmOrigin.values[0]
 
-    lane_graph = get_lanelet_graph(lanelet_path, utm_x0, utm_y0, p0[0], p0[1], return_torch=True)
+    lane_graph = get_lane_graph(lanelet_path, utm_x0, utm_y0, p0[0], p0[1], return_torch=True)
 
     lane_graph = {'upper_map': lane_graph, 'lower_map': lane_graph}
 
@@ -186,7 +191,6 @@ def preprocess_exid(path: str,
     tracks_meta, tracks = add_driving_direction_exits(tracks_meta, tracks)
     tracks = add_maneuver_exits(tracks, debug=debug)
     tracks_meta["numLaneChanges"] = tracks.groupby("trackId")["laneChange"].sum().values
-
 
     # Determine train, val, test split (by frames)
     train_frames, val_frames, test_frames = get_frame_split(tracks_meta.finalFrame.array[-1], seed=seed)

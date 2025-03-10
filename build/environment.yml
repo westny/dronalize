@@ -14,15 +14,15 @@ dependencies:
   - wandb
   - scikit-learn
   - tqdm
-  - seaborn
   - matplotlib
   - pandas
   - utm
   - pyproj
   - pyarrow
+  - lark
   #  - pyg  # PyG has stopped working with conda
   - pytorch-cluster
-  - pytorch-scatter
+  # - pytorch-scatter
   - pip:
       - torch_geometric
       - osmium

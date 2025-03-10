@@ -1,0 +1,33 @@
+# Use a lightweight Ubuntu base for CPU version
+FROM ubuntu:22.04
+
+# Set environment variable for non-interactive installs
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies for CPU builds
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip \
+    libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Ensure `python` refers to `python3`
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+
+# Install PyTorch CPU version
+RUN pip install --no-cache-dir torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+
+# Copy and install dependencies
+COPY container_req.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Install `torch-cluster` for CPU version
+RUN pip install --no-cache-dir torch-cluster -f https://data.pyg.org/whl/torch-2.5.0+cpu.html
+
+# Set default command
+CMD ["python", "--version"]
+
+# Example build command
+# docker build -t dronalize:latest-cpu -f DockerfileCPU .
