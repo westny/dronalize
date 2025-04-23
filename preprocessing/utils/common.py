@@ -59,10 +59,6 @@ def create_tensor_dict(input_array: np.ndarray,
     else:
         non_scored_ids = None
 
-    # Handle NaN values
-    input_tensor[torch.isnan(input_tensor)] = 0.
-    target_tensor[torch.isnan(target_tensor)] = 0.
-
     three_sec = 3 * sample_freq / downsample_factor
 
     input_mask, valid_mask, sa_mask, ma_mask = get_masks(
@@ -72,6 +68,10 @@ def create_tensor_dict(input_array: np.ndarray,
         non_scored_ids,
         k_max
     )
+
+    # Handle NaN values
+    input_tensor[torch.isnan(input_tensor)] = 0.
+    target_tensor[torch.isnan(target_tensor)] = 0.
 
     data = {
         'num_nodes': len(agent_ids),
